@@ -1,0 +1,184 @@
+import
+  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
+
+import "./events.pkl" as Events
+import "./serviceTypes.pkl" as ServiceTypes
+
+assemblyControllerFSM = new csml.StateMachine {
+  states {
+    ["detectingStartState"] = new csml.Initial {
+      on {
+        [Events.eBeamInterruptedStart] {
+          to = "capturePhotoState"
+        }
+
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+      }
+    }
+
+    ["capturePhotoState"] {
+      entry {
+        new csml.Invoke {
+          type = ServiceTypes.stTakePhoto
+        }
+      }
+
+      after {
+        ["photoCaptureTimeout"] {
+          delay = "10000"
+          triggers = new csml.Emit {event = new csml.Internal {topic = Events.ePhotoCaptureTimedOut}}
+        }
+      }
+
+      on {
+        [Events.ePhotoCaptured] {
+          to = "scanPhotoState"
+        }
+
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+
+        [Events.ePhotoCaptureTimedOut] {
+          to = "capturePhotoState"
+        }
+      }
+    }
+
+    ["scanPhotoState"] {
+      entry {
+        new csml.Invoke {
+          type = ServiceTypes.stScanPhoto
+          input {
+            ["imgData"] = "$data"
+          }
+        }
+      }
+
+      after {
+        ["photoScanTimeout"] {
+          delay = "10000"
+          triggers = new csml.Emit {event = new csml.Internal {topic = Events.ePhotoScanTimedOut}}
+        }
+      }
+
+      exit {
+        new csml.Emit { event { topic = Events.eScanned }; target = "'monitor'" }
+      }
+
+      on {
+        [Events.ePhotoScanned] {
+          yields {
+            new csml.Match {
+              cases {
+                new csml.Case {
+                  of = "$validObject"
+                  yields {
+                    new csml.Emit { event = new csml.Internal { topic = Events.eCheckValidObject } }
+                  }
+                }
+                new csml.Case {
+                  of = "!($validObject)"
+                  yields {
+                    new csml.Emit {
+                      event = new csml.Internal { topic = Events.eCheckInvalidObject }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        [Events.eCheckInvalidObject] {
+          to = "errorState"
+        }
+
+        [Events.eCheckValidObject] {
+          to = "detectingEndState"
+          yields {
+            new csml.Emit {
+              event = new csml.Event { topic = Events.eObjectValid }
+              target = "'conveyorBelt'"
+            }
+          }
+        }
+
+        [Events.ePhotoScanTimedOut] {
+          yields {
+            new csml.Invoke {
+              type = ServiceTypes.stScanPhoto
+              input {
+                ["imgData"] = "$data"
+              }
+            }
+          }
+        }
+
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+      }
+    }
+
+    ["errorState"] {
+      entry {
+        new csml.Emit {
+          event {
+            topic = Events.eProcessMessage
+            data { ["msg"] = "'Assembly error: Invalid object detected'" }
+          }
+          target = "'messageProcessor'"
+        }
+
+        new csml.Invoke {
+          type = ServiceTypes.stDiscardObject
+        }
+      }
+
+      on {
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+
+        [Events.eObjectDiscarded] {
+          to = "detectingStartState"
+        }
+      }
+    }
+
+    ["detectingEndState"] {
+      on {
+        [Events.eBeamInterruptedEnd] {
+          to = "unloadingState"
+          yields {
+            new csml.Emit {
+              event = new csml.Event { topic = Events.eStartUnload }
+              target = "'conveyorBelt'"
+            }
+          }
+        }
+
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+      }
+    }
+
+    ["unloadingState"] {
+      on {
+        [Events.ePickedUp] {
+          to = "detectingStartState"
+        }
+
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+      }
+    }
+
+    ["jobDoneState"] = new csml.Terminal {}
+  }
+}
