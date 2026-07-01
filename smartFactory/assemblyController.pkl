@@ -28,7 +28,9 @@ assemblyControllerFSM = new csml.StateMachine {
       after {
         ["photoCaptureTimeout"] {
           delay = "10000"
-          triggers = new csml.Emit {event = new csml.Internal {topic = Events.ePhotoCaptureTimedOut}}
+          triggers = new csml.Emit {
+            event = new csml.Internal { topic = Events.ePhotoCaptureTimedOut }
+          }
         }
       }
 
@@ -60,7 +62,9 @@ assemblyControllerFSM = new csml.StateMachine {
       after {
         ["photoScanTimeout"] {
           delay = "10000"
-          triggers = new csml.Emit {event = new csml.Internal {topic = Events.ePhotoScanTimedOut}}
+          triggers = new csml.Emit {
+            event = new csml.Internal { topic = Events.ePhotoScanTimedOut }
+          }
         }
       }
 
