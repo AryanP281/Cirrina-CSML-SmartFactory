@@ -1,0 +1,72 @@
+import
+  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
+
+import "events.pkl" as Events
+import "serviceTypes.pkl" as ServiceTypes
+import "variables.pkl" as Vars
+
+monitorFSM = new csml.StateMachine {
+  transient {
+    ["nScans"] = "0"
+    ["nAssemblies"] = "0"
+  }
+  states {
+    ["monitoringState"] = new csml.Initial {
+      on {
+        [Events.eScanned] {
+          yields {
+            new csml.Eval { expression = "nScans += 1" }
+            new csml.Emit { event = new csml.Internal { topic = Events.eSendStatistics } }
+          }
+        }
+        [Events.eAssemblyComplete] {
+          yields {
+            new csml.Eval { expression = "nAssemblies += 1" }
+            new csml.Emit { event = new csml.Internal { topic = Events.eSendStatistics } }
+          }
+        }
+        [Events.eSendStatistics] {
+          yields {
+            new csml.Invoke {
+              type = ServiceTypes.stSendStatistics
+              input {
+                ["nScans"] = "nScans"
+                ["nAssemblies"] = "nAssemblies"
+                ["productsCompleted"] = "\(Vars.vProductsCompleted)"
+                ["jobDone"] = "\(Vars.vIsJobDone)"
+              }
+            }
+          }
+        }
+        [Events.eJobDone] {
+          to = "jobDoneLogState"
+        }
+      }
+    }
+
+    ["jobDoneLogState"] {
+      entry {
+        new csml.Invoke {
+          type = ServiceTypes.stSendStatistics
+          input {
+            ["nScans"] = "nScans"
+            ["nAssemblies"] = "nAssemblies"
+            ["productsCompleted"] = "\(Vars.vProductsCompleted)"
+            ["jobDone"] = "\(Vars.vIsJobDone)"
+          }
+          emits {
+            new csml.ConditionalEvent {
+              event = new csml.Internal { topic = Events.eMonitorJobCompletionStatisticsLogged }
+            }
+          }
+        }
+      }
+
+      on {
+        [Events.eMonitorJobCompletionStatisticsLogged] { to = "jobDoneState" }
+      }
+    }
+
+    ["jobDoneState"] = new csml.Terminal {}
+  }
+}
