@@ -1,0 +1,84 @@
+import
+  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
+
+import "events.pkl" as Events
+import "serviceTypes.pkl" as ServiceTypes
+import "variables.pkl" as Vars
+
+messageProcessorFSM = new csml.StateMachine {
+  states {
+    ["idleState"] = new csml.Initial {
+      on {
+        [Events.eProcessMessage] {
+          to = "processState"
+        }
+
+        [Events.eJobDone] {
+          to = "jobDoneState"
+        }
+      }
+    }
+
+    ["jobDoneState"] = new csml.Terminal {}
+  }
+}
+
+emailProcessorFSM = (messageProcessorFSM) {
+  states {
+    ["processState"] {
+      entry {
+        new csml.Invoke {
+          type = ServiceTypes.stProcessEmail
+          input {
+            ["msg"] = "$msg"
+          }
+        }
+      }
+
+      always {
+        new csml.Transition {
+          to = "idleState"
+        }
+      }
+    }
+  }
+}
+
+smsProcessorFSM = (messageProcessorFSM) {
+  states {
+    ["processState"] {
+      entry {
+        new csml.Invoke {
+          type = ServiceTypes.stProcessSms
+          input {
+            ["msg"] = "$msg"
+          }
+        }
+      }
+
+      always {
+        new csml.Transition {
+          to = "idleState"
+        }
+      }
+    }
+  }
+}
+
+logProcessorFSM = (messageProcessorFSM) {
+  states {
+    ["processState"] {
+      entry {
+        new csml.Eval {
+          expression = "\(Vars.vLogs).add($msg)"
+        }
+      }
+
+      always {
+        new csml.Transition {
+          to = "idleState"
+        }
+      }
+    }
+  }
+}
