@@ -1,0 +1,138 @@
+amends
+  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
+import "arm.pkl"
+import "assemblyController.pkl"
+import "belt.pkl"
+import "jobController.pkl"
+import "messageProcessor.pkl"
+import "monitor.pkl"
+import "serviceTypes.pkl" as ServiceTypes
+import "variables.pkl" as Vars
+
+collaborativeStateMachine {
+  stateMachines {
+    ["jobControllerFSM"] = jobController.jobControllerFSM
+    ["beltFSM"] = belt.beltFsm
+    ["armFSM"] = arm.armFSM
+    ["messageProcessorFSM"] = messageProcessor.emailProcessorFSM
+    ["monitorFSM"] = monitor.monitorFSM
+    ["assemblyControllerFSM"] = assemblyController.assemblyControllerFSM
+  }
+
+  persistent {
+    [Vars.vIsJobDone] = "false"
+    [Vars.vLogs] = "[...]"
+    [Vars.vProductsCompleted] = "0"
+  }
+}
+
+instances {
+  ["messageProcessor"] { stateMachineName = "messageProcessorFSM" }
+  ["jobController"] { stateMachineName = "jobControllerFSM" }
+  ["conveyorBelt"] { stateMachineName = "beltFSM" }
+  ["arm"] { stateMachineName = "armFSM" }
+  ["monitor"] { stateMachineName = "monitorFSM" }
+  ["assemblyController"] { stateMachineName = "assemblyControllerFSM" }
+}
+
+bindings {
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stMoveBelt
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/movebelt"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stStopBelt
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/stopbelt"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stTakePhoto
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/takephoto"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stScanPhoto
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/scanphoto"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stPickup
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/pickup"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stAssemble
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/assemble"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stReturnToStart
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/returntostart"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stProcessEmail
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/process/email"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stProcessSms
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/process/sms"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stSendStatistics
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/statistics"
+    method = "POST"
+  }
+  new HttpServiceImplementationBinding {
+    name = ServiceTypes.stDiscardObject
+    `local` = false
+    scheme = "http"
+    host = "localhost"
+    port = 6000
+    endPoint = "/discardobject"
+    method = "POST"
+  }
+}
