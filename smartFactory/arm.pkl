@@ -59,7 +59,7 @@ armFSM = new csml.StateMachine {
       }
 
       on {
-        [Events.eUpdatePickupStatus] {
+        [Events.eMarkPickedUp] {
           yields {
             new csml.Eval { expression = "pickupSuccess = $success" }
             new csml.Match {
@@ -120,9 +120,9 @@ armFSM = new csml.StateMachine {
           or = "returnState"
         }
 
-        [Events.eUpdatePickupStatus] {
+        [Events.eMarkPickedUp] {
           yields {
-            new csml.Eval { expression = "pickupSuccess = $success" }
+            new csml.Eval { expression = "pickupSuccess = true" }
           }
         }
 
