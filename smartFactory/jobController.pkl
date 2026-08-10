@@ -6,7 +6,7 @@ import "variables.pkl" as Vars
 
 jobControllerFSM = new csml.StateMachine {
   transient {
-    ["totalProducts"] = "5"
+    ["totalProducts"] = "1"
   }
 
   states {

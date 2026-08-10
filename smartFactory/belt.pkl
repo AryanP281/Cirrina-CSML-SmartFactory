@@ -23,6 +23,15 @@ beltFsm = new csml.StateMachine {
         }
       }
 
+      after {
+        ["transportingTimeout"] {
+          delay = "10000"
+          triggers = new csml.Emit {
+            event = new csml.Internal { topic = Events.eTransportingTimedOut }
+          }
+        }
+      }
+
       exit {
         new csml.Invoke {
           type = ServiceTypes.stStopBelt
@@ -35,6 +44,13 @@ beltFsm = new csml.StateMachine {
         }
         [Events.eJobDone] {
           to = "jobDoneState"
+        }
+        [Events.eTransportingTimedOut] {
+          yields {
+            new csml.Invoke {
+              type = ServiceTypes.stMoveBelt
+            }
+          }
         }
       }
     }
