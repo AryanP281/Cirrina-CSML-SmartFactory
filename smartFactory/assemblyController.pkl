@@ -5,6 +5,7 @@ import "./events.pkl" as Events
 import "./serviceTypes.pkl" as ServiceTypes
 
 assemblyControllerFSM = new csml.StateMachine {
+
   states {
     ["detectingStartState"] = new csml.Initial {
       on {
@@ -142,6 +143,15 @@ assemblyControllerFSM = new csml.StateMachine {
         }
       }
 
+      after {
+        ["objectDisposalTimeout"] {
+          delay = "10000"
+          triggers = new csml.Emit {
+            event = new csml.Internal { topic = Events.eObjectDisposalTimedOut }
+          }
+        }
+      }
+
       on {
         [Events.eJobDone] {
           to = "jobDoneState"
@@ -149,6 +159,14 @@ assemblyControllerFSM = new csml.StateMachine {
 
         [Events.eObjectDiscarded] {
           to = "detectingStartState"
+        }
+
+        [Events.eObjectDisposalTimedOut] {
+          yields {
+            new csml.Invoke {
+              type = ServiceTypes.stDiscardObject
+            }
+          }
         }
       }
     }

@@ -10,7 +10,7 @@ armFSM = new csml.StateMachine {
     ["pickupSuccess"] = "true"
     ["errorMsg"] = "''"
     ["partsAssembled"] = "0"
-    ["partsPerProduct"] = "3"
+    ["partsPerProduct"] = "10"
   }
 
   states {
@@ -208,6 +208,15 @@ armFSM = new csml.StateMachine {
         }
       }
 
+      after {
+        ["armResetTimeout"] {
+          delay = "10000"
+          triggers = new csml.Emit {
+            event = new csml.Internal { topic = Events.eArmResetTimedOut }
+          }
+        }
+      }
+
       on {
         [Events.eResetArm] {
           to = "idleState"
@@ -227,6 +236,10 @@ armFSM = new csml.StateMachine {
               }
             }
           }
+        }
+
+        [Events.eArmResetTimedOut] {
+          to = "returnState"
         }
       }
     }

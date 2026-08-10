@@ -113,3 +113,12 @@ ePhotoCaptureTimedOut = "ePhotoCaptureTimedOut"
 
 //Event indicating that the assembly controller timed-out while waiting for photo scan
 ePhotoScanTimedOut = "ePhotoScanTimedOut"
+
+//Event indicating that the belt timed-out while waiting for part to be moved to the end
+eTransportingTimedOut = "eTransportingTimedOut"
+
+//Event indicating that the arm timed-out while waiting to be reset
+eArmResetTimedOut = "eArmResetTimedOut"
+
+//Event indicating that the assembly controller timed-out while waiting for invalid object to be disposed
+eObjectDisposalTimedOut = "eObjectDisposalTimedOut"
