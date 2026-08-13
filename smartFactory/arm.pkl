@@ -10,7 +10,7 @@ armFSM = new csml.StateMachine {
     ["pickupSuccess"] = "true"
     ["errorMsg"] = "''"
     ["partsAssembled"] = "0"
-    ["partsPerProduct"] = "10"
+    ["partsPerProduct"] = "100"
   }
 
   states {

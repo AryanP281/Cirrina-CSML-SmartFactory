@@ -6,10 +6,48 @@ import "./serviceTypes.pkl" as ServiceTypes
 
 assemblyControllerFSM = new csml.StateMachine {
 
+  transient {
+    ["firstDetection"] = "true"
+    ["waitingParts"] = "0"
+  }
+
   states {
     ["detectingStartState"] = new csml.Initial {
+      entry {
+        new csml.Match {
+          cases {
+            new csml.Case {
+              of = "waitingParts > 0"
+              yields {
+                new csml.Eval {expression = "waitingParts -= 1"}
+                new csml.Emit {event = new csml.Internal{topic = Events.ePartDetectedAtStart}}
+              }
+            }
+          }
+        }
+      }
+
       on {
         [Events.eBeamInterruptedStart] {
+          to = "detectingStartState"
+          yields {
+            new csml.Eval {expression = "waitingParts += 1"}
+            new csml.Match{
+              cases {
+                new csml.Case {
+                  of = "firstDetection"
+                  yields {
+                    new csml.Emit {event {topic = Events.eProductionStarted}}
+                    new csml.Eval {expression = "firstDetection = false"}
+                  }
+                }
+
+              }
+            }
+          }
+        }
+
+        [Events.ePartDetectedAtStart] {
           to = "capturePhotoState"
         }
 
@@ -46,6 +84,12 @@ assemblyControllerFSM = new csml.StateMachine {
 
         [Events.ePhotoCaptureTimedOut] {
           to = "capturePhotoState"
+        }
+
+        [Events.eBeamInterruptedStart] {
+          yields {
+            new csml.Eval {expression = "waitingParts += 1"}
+          }
         }
       }
     }
@@ -125,6 +169,12 @@ assemblyControllerFSM = new csml.StateMachine {
         [Events.eJobDone] {
           to = "jobDoneState"
         }
+
+        [Events.eBeamInterruptedStart] {
+          yields {
+            new csml.Eval {expression = "waitingParts += 1"}
+          }
+        }
       }
     }
 
@@ -168,6 +218,12 @@ assemblyControllerFSM = new csml.StateMachine {
             }
           }
         }
+
+        [Events.eBeamInterruptedStart] {
+          yields {
+            new csml.Eval {expression = "waitingParts += 1"}
+          }
+        }
       }
     }
 
@@ -186,6 +242,12 @@ assemblyControllerFSM = new csml.StateMachine {
         [Events.eJobDone] {
           to = "jobDoneState"
         }
+
+        [Events.eBeamInterruptedStart] {
+          yields {
+            new csml.Eval {expression = "waitingParts += 1"}
+          }
+        }
       }
     }
 
@@ -197,6 +259,12 @@ assemblyControllerFSM = new csml.StateMachine {
 
         [Events.eJobDone] {
           to = "jobDoneState"
+        }
+
+        [Events.eBeamInterruptedStart] {
+          yields {
+            new csml.Eval {expression = "waitingParts += 1"}
+          }
         }
       }
     }

@@ -122,3 +122,9 @@ eArmResetTimedOut = "eArmResetTimedOut"
 
 //Event indicating that the assembly controller timed-out while waiting for invalid object to be disposed
 eObjectDisposalTimedOut = "eObjectDisposalTimedOut"
+
+//Event indicating that the production loop has started (for measurements)
+eProductionStarted = "eProductionStarted"
+
+//Event indicating that an part has been detected at the start of the belt
+ePartDetectedAtStart = "ePartDetectedAtStart"
