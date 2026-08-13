@@ -70,7 +70,7 @@ logProcessorFSM = (messageProcessorFSM) {
     ["processState"] {
       entry {
         new csml.Eval {
-          expression = "\(Vars.vLogs).add($msg)"
+          expression = "var newLog=\(Vars.vLogs); newLog.add($msg); \(Vars.vLogs)=newLog"
         }
       }
 
