@@ -8,7 +8,7 @@ assemblyControllerFSM = new csml.StateMachine {
 
   transient {
     ["firstDetection"] = "true"
-    ["waitingParts"] = "0"
+    ["waitingParts"] = "0L"
   }
 
   states {
