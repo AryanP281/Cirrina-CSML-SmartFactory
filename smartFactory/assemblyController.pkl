@@ -31,7 +31,7 @@ assemblyControllerFSM = new csml.StateMachine {
         [Events.eBeamInterruptedStart] {
           to = "detectingStartState"
           yields {
-            new csml.Eval {expression = "waitingParts += 1"}
+            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
             new csml.Match{
               cases {
                 new csml.Case {
