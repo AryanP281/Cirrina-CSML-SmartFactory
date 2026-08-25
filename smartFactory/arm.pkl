@@ -49,15 +49,6 @@ armFSM = new csml.StateMachine {
         }
       }
 
-      after {
-        ["pickupTimeout"] {
-          delay = "10000"
-          triggers = new csml.Emit {
-            event = new csml.Internal { topic = Events.eArmPickupUpdateStatusTimedout }
-          }
-        }
-      }
-
       on {
         [Events.eUpdatePickupStatus] {
           yields {
@@ -83,14 +74,6 @@ armFSM = new csml.StateMachine {
           to = "assembleState"
           provided = "pickupSuccess"
           or = "errorState"
-        }
-
-        [Events.eArmPickupUpdateStatusTimedout] {
-          to = "errorState"
-          yields {
-            new csml.Eval { expression = "pickupSuccess = false" }
-            new csml.Eval { expression = "errorMsg = 'Pickup timeout...'" }
-          }
         }
       }
     }
@@ -139,15 +122,6 @@ armFSM = new csml.StateMachine {
         }
       }
 
-      after {
-        ["assemblyTimeout"] {
-          delay = "10000"
-          triggers = new csml.Emit {
-            event = new csml.Internal { topic = Events.eArmAssemblyUpdateStatusTimedout }
-          }
-        }
-      }
-
       on {
         [Events.eCheckAssembleSuccess] {
           yields {
@@ -191,13 +165,6 @@ armFSM = new csml.StateMachine {
             new csml.Eval { expression = "errorMsg = 'Assemble failed...'" }
           }
         }
-
-        [Events.eArmAssemblyUpdateStatusTimedout] {
-          to = "errorState"
-          yields {
-            new csml.Eval { expression = "errorMsg = 'Assembly timeout...'" }
-          }
-        }
       }
     }
 
@@ -205,15 +172,6 @@ armFSM = new csml.StateMachine {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stReturnToStart
-        }
-      }
-
-      after {
-        ["armResetTimeout"] {
-          delay = "10000"
-          triggers = new csml.Emit {
-            event = new csml.Internal { topic = Events.eArmResetTimedOut }
-          }
         }
       }
 
@@ -236,10 +194,6 @@ armFSM = new csml.StateMachine {
               }
             }
           }
-        }
-
-        [Events.eArmResetTimedOut] {
-          to = "returnState"
         }
       }
     }

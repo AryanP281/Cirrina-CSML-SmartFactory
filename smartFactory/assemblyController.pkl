@@ -64,15 +64,6 @@ assemblyControllerFSM = new csml.StateMachine {
         }
       }
 
-      after {
-        ["photoCaptureTimeout"] {
-          delay = "10000"
-          triggers = new csml.Emit {
-            event = new csml.Internal { topic = Events.ePhotoCaptureTimedOut }
-          }
-        }
-      }
-
       on {
         [Events.ePhotoCaptured] {
           to = "scanPhotoState"
@@ -80,10 +71,6 @@ assemblyControllerFSM = new csml.StateMachine {
 
         [Events.eJobDone] {
           to = "jobDoneState"
-        }
-
-        [Events.ePhotoCaptureTimedOut] {
-          to = "capturePhotoState"
         }
 
         [Events.eBeamInterruptedStart] {
@@ -100,15 +87,6 @@ assemblyControllerFSM = new csml.StateMachine {
           type = ServiceTypes.stScanPhoto
           input {
             ["imgData"] = "$data"
-          }
-        }
-      }
-
-      after {
-        ["photoScanTimeout"] {
-          delay = "10000"
-          triggers = new csml.Emit {
-            event = new csml.Internal { topic = Events.ePhotoScanTimedOut }
           }
         }
       }
@@ -155,17 +133,6 @@ assemblyControllerFSM = new csml.StateMachine {
           }
         }
 
-        [Events.ePhotoScanTimedOut] {
-          yields {
-            new csml.Invoke {
-              type = ServiceTypes.stScanPhoto
-              input {
-                ["imgData"] = "$data"
-              }
-            }
-          }
-        }
-
         [Events.eJobDone] {
           to = "jobDoneState"
         }
@@ -193,15 +160,6 @@ assemblyControllerFSM = new csml.StateMachine {
         }
       }
 
-      after {
-        ["objectDisposalTimeout"] {
-          delay = "10000"
-          triggers = new csml.Emit {
-            event = new csml.Internal { topic = Events.eObjectDisposalTimedOut }
-          }
-        }
-      }
-
       on {
         [Events.eJobDone] {
           to = "jobDoneState"
@@ -209,14 +167,6 @@ assemblyControllerFSM = new csml.StateMachine {
 
         [Events.eObjectDiscarded] {
           to = "detectingStartState"
-        }
-
-        [Events.eObjectDisposalTimedOut] {
-          yields {
-            new csml.Invoke {
-              type = ServiceTypes.stDiscardObject
-            }
-          }
         }
 
         [Events.eBeamInterruptedStart] {
