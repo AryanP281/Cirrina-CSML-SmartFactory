@@ -102,27 +102,6 @@ eResetArm = "eResetArm"
 //Event indicating that an invalid object has been discarded
 eObjectDiscarded = "eObjectDiscarded"
 
-//Event indicating that the arm timed-out while waiting for pickup status
-eArmPickupUpdateStatusTimedout = "eArmPickupUpdateStatusTimedout"
-
-//Event indicating that the arm timed-out while waiting for assembly status
-eArmAssemblyUpdateStatusTimedout = "eArmAssemblyUpdateStatusTimedout"
-
-//Event indicating that the assembly controller timed-out while waiting for captured photo
-ePhotoCaptureTimedOut = "ePhotoCaptureTimedOut"
-
-//Event indicating that the assembly controller timed-out while waiting for photo scan
-ePhotoScanTimedOut = "ePhotoScanTimedOut"
-
-//Event indicating that the belt timed-out while waiting for part to be moved to the end
-eTransportingTimedOut = "eTransportingTimedOut"
-
-//Event indicating that the arm timed-out while waiting to be reset
-eArmResetTimedOut = "eArmResetTimedOut"
-
-//Event indicating that the assembly controller timed-out while waiting for invalid object to be disposed
-eObjectDisposalTimedOut = "eObjectDisposalTimedOut"
-
 //Event indicating that the production loop has started (for measurements)
 eProductionStarted = "eProductionStarted"
 
