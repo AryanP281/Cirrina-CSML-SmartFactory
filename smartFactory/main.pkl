@@ -40,7 +40,7 @@ bindings {
     name = ServiceTypes.stMoveBelt
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/movebelt"
     method = "POST"
@@ -49,7 +49,7 @@ bindings {
     name = ServiceTypes.stStopBelt
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/stopbelt"
     method = "POST"
@@ -58,7 +58,7 @@ bindings {
     name = ServiceTypes.stTakePhoto
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/takephoto"
     method = "POST"
@@ -67,7 +67,7 @@ bindings {
     name = ServiceTypes.stScanPhoto
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/scanphoto"
     method = "POST"
@@ -76,7 +76,7 @@ bindings {
     name = ServiceTypes.stPickup
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/pickup"
     method = "POST"
@@ -85,7 +85,7 @@ bindings {
     name = ServiceTypes.stAssemble
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/assemble"
     method = "POST"
@@ -94,7 +94,7 @@ bindings {
     name = ServiceTypes.stReturnToStart
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/returntostart"
     method = "POST"
@@ -103,7 +103,7 @@ bindings {
     name = ServiceTypes.stProcessEmail
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/process/email"
     method = "POST"
@@ -112,7 +112,7 @@ bindings {
     name = ServiceTypes.stProcessSms
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/process/sms"
     method = "POST"
@@ -121,7 +121,7 @@ bindings {
     name = ServiceTypes.stSendStatistics
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/statistics"
     method = "POST"
@@ -130,7 +130,7 @@ bindings {
     name = ServiceTypes.stDiscardObject
     `local` = false
     scheme = "http"
-    host = "localhost"
+    host = "serviceIp"
     port = 6000
     endPoint = "/discardobject"
     method = "POST"
