@@ -12,7 +12,7 @@ messageProcessorFSM = new csml.StateMachine {
         new csml.Invoke {
           type = ServiceTypes.stProcessEmail
           input {
-            ["msg"] = "Hello World"
+            ["msg"] = "'Hello World'"
           }
         }
       }
