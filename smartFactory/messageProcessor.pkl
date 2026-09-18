@@ -15,6 +15,8 @@ messageProcessorFSM = new csml.StateMachine {
             ["msg"] = "'Hello World'"
           }
         }
+
+        new csml.Log {message = "'Hello World'"}
       }
 
       on {
