@@ -8,6 +8,15 @@ import "variables.pkl" as Vars
 messageProcessorFSM = new csml.StateMachine {
   states {
     ["idleState"] = new csml.Initial {
+      entry {
+        new csml.Invoke {
+          type = ServiceTypes.stProcessEmail
+          input {
+            ["msg"] = "Hello World"
+          }
+        }
+      }
+
       on {
         [Events.eProcessMessage] {
           to = "processState"
