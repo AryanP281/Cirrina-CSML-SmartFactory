@@ -12,6 +12,16 @@ monitorFSM = new csml.StateMachine {
   }
   states {
     ["monitoringState"] = new csml.Initial {
+      entry {
+        new csml.Emit {
+          event {
+            topic = Events.eProcessMessage
+            data { ["msg"] = "'Monitor hello'" }
+          }
+          target = "'messageProcessor'"
+        }
+      }
+
       on {
         [Events.eScanned] {
           yields {
