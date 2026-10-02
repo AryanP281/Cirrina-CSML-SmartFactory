@@ -11,12 +11,12 @@ import "variables.pkl" as Vars
 
 collaborativeStateMachine {
   stateMachines {
-    ["jobControllerFSM"] = jobController.jobControllerFSM
-    ["beltFSM"] = belt.beltFsm
-    ["armFSM"] = arm.armFSM
-    ["messageProcessorFSM"] = messageProcessor.emailProcessorFSM
-    ["monitorFSM"] = monitor.monitorFSM
-    ["assemblyControllerFSM"] = assemblyController.assemblyControllerFSM
+    ["jobController"] = jobController.sm
+    ["belt"] = belt.sm
+    ["arm"] = arm.sm
+    ["messageProcessor"] = messageProcessor.email
+    ["monitor"] = monitor.sm
+    ["assemblyController"] = assemblyController.sm
   }
 
   persistent {
@@ -27,12 +27,12 @@ collaborativeStateMachine {
 }
 
 instances {
-  ["messageProcessor"] { stateMachineName = "messageProcessorFSM" }
-  ["jobController"] { stateMachineName = "jobControllerFSM" }
-  ["conveyorBelt"] { stateMachineName = "beltFSM" }
-  ["arm"] { stateMachineName = "armFSM" }
-  ["monitor"] { stateMachineName = "monitorFSM" }
-  ["assemblyController"] { stateMachineName = "assemblyControllerFSM" }
+  ["messageProcessor"] { stateMachineName = "messageProcessor" }
+  ["jobController"] { stateMachineName = "jobController" }
+  ["conveyorBelt"] { stateMachineName = "belt" }
+  ["arm"] { stateMachineName = "arm" }
+  ["monitor"] { stateMachineName = "monitor" }
+  ["assemblyController"] { stateMachineName = "assemblyController" }
 }
 
 bindings {

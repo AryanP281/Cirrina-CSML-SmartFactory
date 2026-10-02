@@ -5,7 +5,7 @@ import "events.pkl" as Events
 import "serviceTypes.pkl" as ServiceTypes
 import "variables.pkl" as Vars
 
-monitorFSM = new csml.StateMachine {
+sm = new csml.StateMachine {
   transient {
     ["nScans"] = "0"
     ["nAssemblies"] = "0"

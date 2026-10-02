@@ -5,7 +5,7 @@ import "events.pkl" as Events
 import "serviceTypes.pkl" as ServiceTypes
 import "variables.pkl" as Vars
 
-messageProcessorFSM = new csml.StateMachine {
+base = new csml.StateMachine {
   states {
     ["idleState"] = new csml.Initial {
       on {
@@ -23,7 +23,7 @@ messageProcessorFSM = new csml.StateMachine {
   }
 }
 
-emailProcessorFSM = (messageProcessorFSM) {
+email = (base) {
   states {
     ["processState"] {
       entry {
@@ -44,7 +44,7 @@ emailProcessorFSM = (messageProcessorFSM) {
   }
 }
 
-smsProcessorFSM = (messageProcessorFSM) {
+sms = (base) {
   states {
     ["processState"] {
       entry {
@@ -65,7 +65,7 @@ smsProcessorFSM = (messageProcessorFSM) {
   }
 }
 
-logProcessorFSM = (messageProcessorFSM) {
+log = (base) {
   states {
     ["processState"] {
       entry {
