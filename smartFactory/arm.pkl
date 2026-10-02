@@ -90,7 +90,7 @@ sm = new csml.StateMachine {
       }
 
       after {
-        ["pickupRetryTimeout"] {
+        ["pickupRetryTimeout"] = new csml.Timeout {
           delay = "2000"
           triggers = new csml.Emit { event = new csml.Internal { topic = Events.eRetry } }
         }
