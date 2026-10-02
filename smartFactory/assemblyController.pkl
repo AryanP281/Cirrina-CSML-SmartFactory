@@ -57,7 +57,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["capturePhoto"] {
+    ["capturePhoto"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stTakePhoto
@@ -81,7 +81,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["scanPhoto"] {
+    ["scanPhoto"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stScanPhoto
@@ -145,7 +145,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["error"] {
+    ["error"] = new csml.State {
       entry {
         new csml.Emit {
           event {
@@ -177,7 +177,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["detectingEnd"] {
+    ["detectingEnd"] = new csml.State {
       on {
         [Events.eBeamInterruptedEnd] {
           to = "unloading"
@@ -201,7 +201,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["unloading"] {
+    ["unloading"] = new csml.State {
       on {
         [Events.ePickedUp] {
           to = "detectingStart"
