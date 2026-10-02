@@ -1,11 +1,13 @@
 import
+  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/events.pkl"
+  as Events
+import
+  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/serviceTypes.pkl"
+  as ServiceTypes
+import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
 
-import "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/events.pkl" as Events
-import "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/serviceTypes.pkl" as ServiceTypes
-
 sm = new csml.StateMachine {
-
   transient = new Mapping {
     ["firstDetection"] = "true"
     ["waitingParts"] = "0L"
@@ -19,8 +21,8 @@ sm = new csml.StateMachine {
             new csml.Case {
               of = "waitingParts > 0"
               yields {
-                new csml.Eval {expression = "waitingParts -= 1"}
-                new csml.Emit {event = new csml.Internal{topic = Events.ePartDetectedAtStart}}
+                new csml.Eval { expression = "waitingParts -= 1" }
+                new csml.Emit { event = new csml.Internal { topic = Events.ePartDetectedAtStart } }
               }
             }
           }
@@ -31,17 +33,18 @@ sm = new csml.StateMachine {
         [Events.eBeamInterruptedStart] {
           to = "detectingStart"
           yields {
-            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
-            new csml.Match{
+            new csml.Eval {
+              expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"
+            }
+            new csml.Match {
               cases {
                 new csml.Case {
                   of = "firstDetection"
                   yields {
-                    new csml.Emit {event {topic = Events.eProductionStarted}}
-                    new csml.Eval {expression = "firstDetection = false"}
+                    new csml.Emit { event { topic = Events.eProductionStarted } }
+                    new csml.Eval { expression = "firstDetection = false" }
                   }
                 }
-
               }
             }
           }
@@ -75,7 +78,9 @@ sm = new csml.StateMachine {
 
         [Events.eBeamInterruptedStart] {
           yields {
-            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
+            new csml.Eval {
+              expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"
+            }
           }
         }
       }
@@ -139,7 +144,9 @@ sm = new csml.StateMachine {
 
         [Events.eBeamInterruptedStart] {
           yields {
-            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
+            new csml.Eval {
+              expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"
+            }
           }
         }
       }
@@ -171,7 +178,9 @@ sm = new csml.StateMachine {
 
         [Events.eBeamInterruptedStart] {
           yields {
-            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
+            new csml.Eval {
+              expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"
+            }
           }
         }
       }
@@ -195,7 +204,9 @@ sm = new csml.StateMachine {
 
         [Events.eBeamInterruptedStart] {
           yields {
-            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
+            new csml.Eval {
+              expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"
+            }
           }
         }
       }
@@ -213,7 +224,9 @@ sm = new csml.StateMachine {
 
         [Events.eBeamInterruptedStart] {
           yields {
-            new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
+            new csml.Eval {
+              expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"
+            }
           }
         }
       }
