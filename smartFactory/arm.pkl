@@ -5,7 +5,7 @@ import "events.pkl" as Events
 import "serviceTypes.pkl" as ServiceTypes
 import "variables.pkl" as Vars
 
-armFSM = new csml.StateMachine {
+sm = new csml.StateMachine {
   transient {
     ["pickupSuccess"] = "true"
     ["errorMsg"] = "''"

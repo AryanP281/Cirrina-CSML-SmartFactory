@@ -4,7 +4,7 @@ import
 import "events.pkl" as Events
 import "serviceTypes.pkl" as ServiceTypes
 
-beltFsm = new csml.StateMachine {
+sm = new csml.StateMachine {
   states {
     ["loadingState"] = new csml.Initial {
       on {

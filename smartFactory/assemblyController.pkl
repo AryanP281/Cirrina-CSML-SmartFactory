@@ -4,7 +4,7 @@ import
 import "./events.pkl" as Events
 import "./serviceTypes.pkl" as ServiceTypes
 
-assemblyControllerFSM = new csml.StateMachine {
+sm = new csml.StateMachine {
 
   transient {
     ["firstDetection"] = "true"
