@@ -5,7 +5,7 @@ import "events.pkl" as Events
 import "variables.pkl" as Vars
 
 sm = new csml.StateMachine {
-  transient {
+  transient = new Mapping {
     ["totalProducts"] = "1"
   }
 
