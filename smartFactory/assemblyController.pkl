@@ -12,7 +12,7 @@ sm = new csml.StateMachine {
   }
 
   states {
-    ["detectingStartState"] = new csml.Initial {
+    ["detectingStart"] = new csml.Initial {
       entry {
         new csml.Match {
           cases {
@@ -29,7 +29,7 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eBeamInterruptedStart] {
-          to = "detectingStartState"
+          to = "detectingStart"
           yields {
             new csml.Eval {expression = "if(waitingParts != 9223372036854775807L) {waitingParts += 1;}"}
             new csml.Match{
@@ -48,16 +48,16 @@ sm = new csml.StateMachine {
         }
 
         [Events.ePartDetectedAtStart] {
-          to = "capturePhotoState"
+          to = "capturePhoto"
         }
 
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
       }
     }
 
-    ["capturePhotoState"] {
+    ["capturePhoto"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stTakePhoto
@@ -66,11 +66,11 @@ sm = new csml.StateMachine {
 
       on {
         [Events.ePhotoCaptured] {
-          to = "scanPhotoState"
+          to = "scanPhoto"
         }
 
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
 
         [Events.eBeamInterruptedStart] {
@@ -81,7 +81,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["scanPhotoState"] {
+    ["scanPhoto"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stScanPhoto
@@ -120,11 +120,11 @@ sm = new csml.StateMachine {
         }
 
         [Events.eCheckInvalidObject] {
-          to = "errorState"
+          to = "error"
         }
 
         [Events.eCheckValidObject] {
-          to = "detectingEndState"
+          to = "detectingEnd"
           yields {
             new csml.Emit {
               event = new csml.Event { topic = Events.eObjectValid }
@@ -134,7 +134,7 @@ sm = new csml.StateMachine {
         }
 
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
 
         [Events.eBeamInterruptedStart] {
@@ -145,7 +145,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["errorState"] {
+    ["error"] {
       entry {
         new csml.Emit {
           event {
@@ -162,11 +162,11 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
 
         [Events.eObjectDiscarded] {
-          to = "detectingStartState"
+          to = "detectingStart"
         }
 
         [Events.eBeamInterruptedStart] {
@@ -177,10 +177,10 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["detectingEndState"] {
+    ["detectingEnd"] {
       on {
         [Events.eBeamInterruptedEnd] {
-          to = "unloadingState"
+          to = "unloading"
           yields {
             new csml.Emit {
               event = new csml.Event { topic = Events.eStartUnload }
@@ -190,7 +190,7 @@ sm = new csml.StateMachine {
         }
 
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
 
         [Events.eBeamInterruptedStart] {
@@ -201,14 +201,14 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["unloadingState"] {
+    ["unloading"] {
       on {
         [Events.ePickedUp] {
-          to = "detectingStartState"
+          to = "detectingStart"
         }
 
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
 
         [Events.eBeamInterruptedStart] {
@@ -219,6 +219,6 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["jobDoneState"] = new csml.Terminal {}
+    ["jobDone"] = new csml.Terminal {}
   }
 }
