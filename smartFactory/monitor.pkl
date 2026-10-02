@@ -44,7 +44,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["jobDoneLog"] {
+    ["jobDoneLog"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stSendStatistics
