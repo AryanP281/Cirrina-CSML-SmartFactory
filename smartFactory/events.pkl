@@ -15,9 +15,6 @@ eArmPickup = "eArmPickup"
 //Event for indicating an object is valid
 eObjectValid = "eObjectValid"
 
-//Event for indicating an object is inValid
-eObjectInvalid = "eObjectInvalid"
-
 //Event for indicating a photo has been scanned (by conveyor camera)
 ePhotoScanned = "ePhotoScanned"
 
@@ -33,15 +30,6 @@ eBeamInterruptedStart = "eBeamInterruptedStart"
 //Event for indicating that end sensor's beam has been interrupted
 eBeamInterruptedEnd = "eBeamInterruptedEnd"
 
-//Event for indicating that beam detection by sensor is complete
-eBeamDetectionPerformed = "beamDetectionPerformed"
-
-//Event for initating checking of beam detection results
-eCheckBeamDetection = "eCheckBeamDetection"
-
-//Event for initating scanning (by conveyor camera)
-eStartScan = "eStartScan"
-
 //Event for initating unloading (by conveyor belt)
 eStartUnload = "eStartUnload"
 
@@ -50,9 +38,6 @@ eCheckJobDone = "eCheckJobDone"
 
 //Event for indicating that pickup failed (by robotic arm)
 ePickupNotSuccess = "pickupNotSuccess"
-
-//Event for initiating update of pickup success status
-eUpdatePickupSuccessStatus = "eUpdatePickupSuccessStatus"
 
 //Event for initating check for pickup success
 eCheckPickUpSuccess = "eCheckPickUpSuccess"
@@ -84,17 +69,11 @@ eProductComplete = "eProductComplete"
 //Event initiating transfer of statistics to external service
 eSendStatistics = "eSendStatistics"
 
-//Event indicating that a message has been processed
-eMessageProcessed = "eMessageProcessed"
-
 //Event indicating that a photo has been captured
 ePhotoCaptured = "ePhotoCaptured"
 
 //Event indicating that the statistics after job completion have been logged by the monitor
 eMonitorJobCompletionStatisticsLogged = "eMonitorJobCompletionStatisticsLogged"
-
-//Event indicating that the conveyor belt has been moved to the start position
-eBeltReturnedToStart = "eBeltReturnedToStart"
 
 //Event indicating that the arm has been reset
 eResetArm = "eResetArm"
