@@ -42,7 +42,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["pickup"] {
+    ["pickup"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stPickup
@@ -78,7 +78,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["error"] {
+    ["error"] = new csml.State {
       entry {
         new csml.Emit {
           event {
@@ -115,7 +115,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["assemble"] {
+    ["assemble"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stAssemble
@@ -168,7 +168,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["return"] {
+    ["return"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stReturnToStart
