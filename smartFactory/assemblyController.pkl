@@ -6,7 +6,7 @@ import "./serviceTypes.pkl" as ServiceTypes
 
 sm = new csml.StateMachine {
 
-  transient {
+  transient = new Mapping {
     ["firstDetection"] = "true"
     ["waitingParts"] = "0L"
   }

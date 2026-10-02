@@ -6,7 +6,7 @@ import "serviceTypes.pkl" as ServiceTypes
 import "variables.pkl" as Vars
 
 sm = new csml.StateMachine {
-  transient {
+  transient = new Mapping {
     ["nScans"] = "0"
     ["nAssemblies"] = "0"
   }
