@@ -16,7 +16,7 @@ sm = new csml.StateMachine {
         }
       }
     }
-    ["transporting"] {
+    ["transporting"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stMoveBelt
@@ -41,7 +41,7 @@ sm = new csml.StateMachine {
 
     ["jobDone"] = new csml.Terminal {}
 
-    ["unloading"] {
+    ["unloading"] = new csml.State {
       entry {
         new csml.Emit { event { topic = Events.eArmPickup }; target = "'arm'" }
       }
