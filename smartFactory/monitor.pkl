@@ -11,7 +11,7 @@ sm = new csml.StateMachine {
     ["nAssemblies"] = "0"
   }
   states {
-    ["monitoringState"] = new csml.Initial {
+    ["monitoring"] = new csml.Initial {
       on {
         [Events.eScanned] {
           yields {
@@ -39,12 +39,12 @@ sm = new csml.StateMachine {
           }
         }
         [Events.eJobDone] {
-          to = "jobDoneLogState"
+          to = "jobDoneLog"
         }
       }
     }
 
-    ["jobDoneLogState"] {
+    ["jobDoneLog"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stSendStatistics
@@ -63,10 +63,10 @@ sm = new csml.StateMachine {
       }
 
       on {
-        [Events.eMonitorJobCompletionStatisticsLogged] { to = "jobDoneState" }
+        [Events.eMonitorJobCompletionStatisticsLogged] { to = "jobDone" }
       }
     }
 
-    ["jobDoneState"] = new csml.Terminal {}
+    ["jobDone"] = new csml.Terminal {}
   }
 }
