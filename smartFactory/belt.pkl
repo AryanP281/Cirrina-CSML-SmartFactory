@@ -6,17 +6,17 @@ import "serviceTypes.pkl" as ServiceTypes
 
 sm = new csml.StateMachine {
   states {
-    ["loadingState"] = new csml.Initial {
+    ["loading"] = new csml.Initial {
       on {
         [Events.eObjectValid] {
-          to = "transportingState"
+          to = "transporting"
         }
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
       }
     }
-    ["transportingState"] {
+    ["transporting"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stMoveBelt
@@ -31,17 +31,17 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eStartUnload] {
-          to = "unloadingState"
+          to = "unloading"
         }
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
       }
     }
 
-    ["jobDoneState"] = new csml.Terminal {}
+    ["jobDone"] = new csml.Terminal {}
 
-    ["unloadingState"] {
+    ["unloading"] {
       entry {
         new csml.Emit { event { topic = Events.eArmPickup }; target = "'arm'" }
       }
@@ -55,11 +55,11 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
 
         [Events.ePickedUp] {
-          to = "loadingState"
+          to = "loading"
         }
       }
     }
