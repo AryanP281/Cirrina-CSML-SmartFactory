@@ -28,7 +28,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["running"] {
+    ["running"] = new csml.State {
       on {
         [Events.eProductComplete] {
           yields {
