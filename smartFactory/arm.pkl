@@ -14,7 +14,7 @@ sm = new csml.StateMachine {
   }
 
   states {
-    ["idleState"] = new csml.Initial {
+    ["idle"] = new csml.Initial {
       entry {
         new csml.Match {
           cases {
@@ -30,19 +30,19 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
         [Events.eArmPickup] {
-          to = "pickupState"
+          to = "pickup"
           provided = "!\(Vars.vIsJobDone)"
         }
         [Events.ePickupNotSuccess] {
-          to = "pickupState"
+          to = "pickup"
         }
       }
     }
 
-    ["pickupState"] {
+    ["pickup"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stPickup
@@ -71,14 +71,14 @@ sm = new csml.StateMachine {
         }
 
         [Events.eCheckPickUpSuccess] {
-          to = "assembleState"
+          to = "assemble"
           provided = "pickupSuccess"
-          or = "errorState"
+          or = "error"
         }
       }
     }
 
-    ["errorState"] {
+    ["error"] {
       entry {
         new csml.Emit {
           event {
@@ -98,9 +98,9 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eRetry] {
-          to = "assembleState"
+          to = "assemble"
           provided = "pickupSuccess"
-          or = "returnState"
+          or = "return"
         }
 
         [Events.eUpdatePickupStatus] {
@@ -110,12 +110,12 @@ sm = new csml.StateMachine {
         }
 
         [Events.eJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
         }
       }
     }
 
-    ["assembleState"] {
+    ["assemble"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stAssemble
@@ -149,7 +149,7 @@ sm = new csml.StateMachine {
         }
 
         [Events.eAssemblySuccessful] {
-          to = "returnState"
+          to = "return"
           yields {
             new csml.Eval { expression = "partsAssembled = partsAssembled + 1" }
             new csml.Emit {
@@ -160,7 +160,7 @@ sm = new csml.StateMachine {
         }
 
         [Events.eAssemblyUnsuccessful] {
-          to = "errorState"
+          to = "error"
           yields {
             new csml.Eval { expression = "errorMsg = 'Assemble failed...'" }
           }
@@ -168,7 +168,7 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["returnState"] {
+    ["return"] {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stReturnToStart
@@ -177,7 +177,7 @@ sm = new csml.StateMachine {
 
       on {
         [Events.eResetArm] {
-          to = "idleState"
+          to = "idle"
           yields {
             new csml.Match {
               cases {
@@ -198,6 +198,6 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["jobDoneState"] = new csml.Terminal {}
+    ["jobDone"] = new csml.Terminal {}
   }
 }
