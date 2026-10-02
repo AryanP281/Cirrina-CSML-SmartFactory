@@ -25,7 +25,7 @@ base = new csml.StateMachine {
 
 email = (base) {
   states {
-    ["process"] {
+    ["process"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stProcessEmail
@@ -46,7 +46,7 @@ email = (base) {
 
 sms = (base) {
   states {
-    ["process"] {
+    ["process"] = new csml.State {
       entry {
         new csml.Invoke {
           type = ServiceTypes.stProcessSms
@@ -67,7 +67,7 @@ sms = (base) {
 
 log = (base) {
   states {
-    ["process"] {
+    ["process"] = new csml.State {
       entry {
         new csml.Eval {
           expression = "var newLog=\(Vars.vLogs); newLog.add($msg); \(Vars.vLogs)=newLog"
