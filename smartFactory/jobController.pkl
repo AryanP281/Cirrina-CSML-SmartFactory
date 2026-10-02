@@ -10,7 +10,7 @@ sm = new csml.StateMachine {
   }
 
   states {
-    ["startingState"] = new csml.Initial {
+    ["starting"] = new csml.Initial {
       entry {
         new csml.Emit {
           event {
@@ -23,12 +23,12 @@ sm = new csml.StateMachine {
 
       always {
         new csml.Transition {
-          to = "runningState"
+          to = "running"
         }
       }
     }
 
-    ["runningState"] {
+    ["running"] {
       on {
         [Events.eProductComplete] {
           yields {
@@ -38,13 +38,13 @@ sm = new csml.StateMachine {
         }
 
         [Events.eCheckJobDone] {
-          to = "jobDoneState"
+          to = "jobDone"
           provided = "\(Vars.vProductsCompleted) >= totalProducts"
         }
       }
     }
 
-    ["jobDoneState"] = new csml.Terminal {
+    ["jobDone"] = new csml.Terminal {
       entry {
         new csml.Eval { expression = "\(Vars.vIsJobDone) = true" }
         new csml.Emit {
