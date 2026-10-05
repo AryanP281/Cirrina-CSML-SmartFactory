@@ -17,4 +17,4 @@ COPY --from=build /app/build/libs/backend.jar /service/backend.jar
 COPY models ./models
 COPY imgs ./imgs
 
-ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow", "-cp", "/service/backend.jar:/opt/cirrina/lib/*", "org.example.MainKt"]
+ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow", "-cp", "/service/backend.jar:/opt/cirrina/lib/*", "at.ac.uibk.dps.cirrina.execution.object.FactoryServiceKt"]
