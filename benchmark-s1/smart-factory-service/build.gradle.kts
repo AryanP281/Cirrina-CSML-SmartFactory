@@ -1,5 +1,3 @@
-import sun.jvmstat.monitor.MonitoredVmUtil.mainClass
-
 plugins {
     kotlin("jvm") version "2.3.10"
     id("application")
@@ -26,7 +24,11 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
     runtimeOnly("ch.qos.logback:logback-classic:1.5.16")
 
-    implementation(files("libs/cirrina-2.2.0-all.jar"))
+    compileOnly(
+        fileTree("/opt/cirrina/lib") {
+            include("*.jar")
+        }
+    )
 }
 
 kotlin {
@@ -37,25 +39,8 @@ application {
     mainClass.set("org.example.MainKt")
 }
 
-sourceSets {
-    main {
-        java { srcDir("build/generated/fory/foryGenJava/java")}
-    }
-}
-
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.register("generateForyTypes", Exec::class.java) {
-    commandLine(
-        ".venvs/bin/foryc",
-        "--lang",
-        "java",
-        "-o",
-        "build/generated/fory/foryGenJava",
-        "fdl/Event.fdl",
-    )
 }
 
 tasks.shadowJar {
