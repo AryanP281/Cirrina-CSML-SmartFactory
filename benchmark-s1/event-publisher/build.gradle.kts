@@ -1,5 +1,3 @@
-import sun.jvmstat.monitor.MonitoredVmUtil.mainClass
-
 plugins {
     kotlin("jvm") version "2.3.10"
     id("application")
@@ -7,7 +5,7 @@ plugins {
     id("com.ncorti.ktfmt.gradle") version "0.24.0"
 }
 
-group = "org.example.daprtutorial"
+group = "at.ac.uibk.dps.cirrina.execution.object"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -22,7 +20,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
     runtimeOnly("ch.qos.logback:logback-classic:1.5.16")
 
-    implementation(files("libs/cirrina-2.2.0-all.jar"))
+    compileOnly(fileTree("/opt/cirrina/lib") { include("*.jar") })
 
     testImplementation(kotlin("test"))
 }

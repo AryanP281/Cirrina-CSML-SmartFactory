@@ -45,6 +45,9 @@ val latch = CountDownLatch(1)
 
 fun main()
 {
+    Class.forName("at.ac.uibk.dps.cirrina.spec.Event")
+    println("Linking successful")
+
     logger.info("Part arrival rate = $PART_ARRIVAL_RATE_PER_SEC/sec")
 
     val jobDoneSubscriber = zenohSession.declareAdvancedSubscriber(KeyExpr.tryFrom("events/jobController/eJobDone").getOrThrow(), subscriberDetection = true, recoveryConfig = RecoveryConfig(
