@@ -4,7 +4,7 @@ plugins {
     id("com.gradleup.shadow") version "9.0.0"
 }
 
-group = "org.example"
+group = "at.ac.uibk.dps.cirrina.execution.object"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -36,7 +36,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("org.example.MainKt")
+    mainClass.set("at.ac.uibk.dps.cirrina.execution.object.FactoryServiceKt")
 }
 
 tasks.test {

@@ -1,4 +1,4 @@
-package org.example
+package at.ac.uibk.dps.cirrina.execution.`object`
 
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
@@ -48,7 +48,7 @@ val zenohConfig =
         Config.fromFile(File(path)).getOrThrow()
     } ?: Config.default()
 
-val logger = LoggerFactory.getLogger("org.example.MainKt")
+val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.FactoryServiceKt")
 
 val SERVICE_ROLE = System.getenv("SERVICE_ROLE") ?: "" //The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
 
