@@ -1,14 +1,5 @@
-package org.example
+package at.ac.uibk.dps.cirrina.execution.`object`
 
-import at.ac.uibk.dps.cirrina.execution.util.Serializer
-import at.ac.uibk.dps.cirrina.spec.Event
-import io.zenoh.Config
-import io.zenoh.Zenoh
-import io.zenoh.ext.HistoryConfig
-import io.zenoh.ext.RecoveryConfig
-import io.zenoh.ext.RecoveryMode
-import io.zenoh.keyexpr.KeyExpr
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.PrintWriter
 import java.util.concurrent.CountDownLatch
@@ -38,7 +29,7 @@ val firstArrivalTime = AtomicLong(Long.MAX_VALUE)
 val lastArrivalTime = AtomicLong(Long.MIN_VALUE)
 val arrivalCount = AtomicInteger(0)
 
-val logger = LoggerFactory.getLogger("org.example.MainKt")
+val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.MetricsCollectorKt")
 
 val shutdownLatch = CountDownLatch(1)
 
