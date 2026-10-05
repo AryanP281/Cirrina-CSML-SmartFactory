@@ -1,4 +1,4 @@
-package org.example
+package at.ac.uibk.dps.cirrina.execution.`object`
 
 import at.ac.uibk.dps.cirrina.csm.Csml
 import at.ac.uibk.dps.cirrina.execution.util.Serializer
@@ -39,7 +39,7 @@ val PUBLISH_START_DELAY_MS : Long = System.getenv("PUBLISH_START_DELAY")?.toLong
 val PART_ARRIVAL_RATE_PER_SEC : Double = System.getenv("PART_ARRIVAl_RATE_PER_SEC")?.toDouble() ?: 1.0
 val PUBLISH_MODE = System.getenv("PUBLISH_MODE")?.toInt() ?: 0
 
-val logger = LoggerFactory.getLogger("org.example.MainKt")
+val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.EventPublisherKt")
 
 val latch = CountDownLatch(1)
 
