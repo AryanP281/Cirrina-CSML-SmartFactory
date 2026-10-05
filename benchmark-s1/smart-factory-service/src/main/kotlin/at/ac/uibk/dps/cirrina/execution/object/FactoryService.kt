@@ -50,7 +50,7 @@ val zenohConfig =
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.FactoryServiceKt")
 
-val SERVICE_ROLE = System.getenv("SERVICE_ROLE") ?: "" //The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
+val SERVICE_ROLE = System.getenv("SERVICE_ROLE") ?: "" // The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
 
 fun main() {
     try {
@@ -103,7 +103,7 @@ fun registerMonitorEndpoints(httpServer: HttpServer)
         logger.info(statisticsSb)
     }
 
-    //Adding cleanup code
+    // Adding cleanup code
     Runtime.getRuntime().addShutdownHook(
         Thread {
             shutdownServer(httpServer)
@@ -142,7 +142,6 @@ fun registerMessageProcessorEndpoints(httpServer: HttpServer)
         }
     }
 
-    //Adding cleanup code
     Runtime.getRuntime().addShutdownHook(
         Thread {
             shutdownServer(httpServer)
@@ -155,15 +154,15 @@ fun registerMessageProcessorEndpoints(httpServer: HttpServer)
 
 fun registerBeltEndpoints(httpServer: HttpServer)
 {
-    //Initializing configuration parameters
+    // Initializing configuration parameters
     val beltMovementTimeMs: Long = 400
 
     val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
-    //Initializing event topics
+    // Initializing event topics
     val endBeamInterruptionTopic = "eBeamInterruptedEnd"
 
-    //Declaring publishers
+    // Declaring publishers
    val zenohEndBeamInterruptionPublisher = zenohSession.declareAdvancedPublisher(KeyExpr.tryFrom("events/peripheral/$endBeamInterruptionTopic").getOrThrow(), cacheConfig = CacheConfig(1000L),
         sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)), publisherDetection = true).getOrThrow()
 
@@ -203,7 +202,6 @@ fun registerBeltEndpoints(httpServer: HttpServer)
         }
     }
 
-    //Adding cleanup code
     Runtime.getRuntime().addShutdownHook(
         Thread {
             shutdownServer(httpServer)
@@ -218,7 +216,7 @@ fun registerBeltEndpoints(httpServer: HttpServer)
 
 fun registerArmEndpoints(httpServer: HttpServer)
 {
-    //Initializing configuration parameters
+    // Initializing configuration parameters
     val pickupMinFailureProb: Double = 0.0
     val pickupMaxFailureProb: Double = 0.0
     val assemblyMinFailureProb: Double = 0.0
@@ -229,12 +227,12 @@ fun registerArmEndpoints(httpServer: HttpServer)
 
     val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
-    //Initializing event topics
+    // Initializing event topics
     val armPickupTopic = "eUpdatePickupStatus"
     val assemblyTopic = "eCheckAssembleSuccess"
     val armResetTopic = "eResetArm"
 
-    //Declaring publishers
+    // Declaring publishers
     val zenohArmPickupPublisher =
         zenohSession.declareAdvancedPublisher(
             KeyExpr.tryFrom("events/peripheral/$armPickupTopic").getOrThrow(),
@@ -383,7 +381,6 @@ fun registerArmEndpoints(httpServer: HttpServer)
         )
     }
 
-    //Adding cleanup code
     Runtime.getRuntime().addShutdownHook(
         Thread {
             shutdownServer(httpServer)
@@ -398,7 +395,7 @@ fun registerArmEndpoints(httpServer: HttpServer)
 
 fun registerAssemblyControllerEndpoints(httpServer: HttpServer)
 {
-    //Initializing configuration parameters
+    // Initializing configuration parameters
     val ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
     val ortSession: OrtSession = ortEnv.createSession("models/yolov8n.onnx", OrtSession.SessionOptions())
 
@@ -414,12 +411,12 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer)
 
     val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
-    //Initializing event topics
+    // Initializing event topics
     val photoCapturedTopic = "ePhotoCaptured"
     val photoScannedTopic = "ePhotoScanned"
     val objectDisposalTopic = "eObjectDiscarded"
 
-    //Declaring publishers
+    // Declaring publishers
     val zenohPhotoCapturePublisher =
         zenohSession.declareAdvancedPublisher(
             KeyExpr.tryFrom("events/peripheral/$photoCapturedTopic").getOrThrow(),
@@ -599,7 +596,7 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer)
         )
     }
 
-    //Adding cleanup code
+    // Adding cleanup code
     Runtime.getRuntime().addShutdownHook(
         Thread {
             shutdownServer(httpServer)
