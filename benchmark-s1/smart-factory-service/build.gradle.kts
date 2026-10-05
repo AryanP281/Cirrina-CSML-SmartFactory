@@ -11,6 +11,8 @@ version = "1.0-SNAPSHOT"
 
 repositories { mavenCentral() }
 
+ktfmt { googleStyle() }
+
 dependencies {
   testImplementation(kotlin("test"))
 

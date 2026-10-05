@@ -44,15 +44,14 @@ import org.slf4j.LoggerFactory
 val executorService: ScheduledExecutorService = Executors.newScheduledThreadPool(8)
 
 val zenohConfig =
-    System.getenv("ZENOH_CONFIG_URI")?.let { path -> Config.fromFile(File(path)).getOrThrow() }
-        ?: Config.default()
+  System.getenv("ZENOH_CONFIG_URI")?.let { path -> Config.fromFile(File(path)).getOrThrow() }
+    ?: Config.default()
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.FactoryServiceKt")
 
 val serviceRole =
-    System.getenv("SERVICE_ROLE")
-        ?: "" // The state machine role that the process provides services for - "monitor", "mp",
-              // "belt", "arm", "ac"
+  System.getenv("SERVICE_ROLE")
+    ?: "" // The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
 
 fun main() {
   try {
@@ -97,11 +96,12 @@ fun registerMonitorEndpoints(httpServer: HttpServer) {
 
   // Adding cleanup code
   Runtime.getRuntime()
-      .addShutdownHook(
-          Thread {
-            shutdownServer(httpServer)
-            shutdownExecutorService()
-          })
+    .addShutdownHook(
+      Thread {
+        shutdownServer(httpServer)
+        shutdownExecutorService()
+      }
+    )
 
   logger.info("Registered endpoints for Monitor")
 }
@@ -128,11 +128,12 @@ fun registerMessageProcessorEndpoints(httpServer: HttpServer) {
   }
 
   Runtime.getRuntime()
-      .addShutdownHook(
-          Thread {
-            shutdownServer(httpServer)
-            shutdownExecutorService()
-          })
+    .addShutdownHook(
+      Thread {
+        shutdownServer(httpServer)
+        shutdownExecutorService()
+      }
+    )
 
   logger.info("Registered endpoints for MessageProcessor")
 }
@@ -148,32 +149,35 @@ fun registerBeltEndpoints(httpServer: HttpServer) {
 
   // Declaring publishers
   val zenohEndBeamInterruptionPublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$endBeamInterruptionTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$endBeamInterruptionTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   httpServer.createContext("/movebelt") { exchange ->
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
     executorService.schedule(
-        {
-          val endBeamInterruptedEvent =
-              Event(
-                  endBeamInterruptionTopic,
-                  EventChannel.PERIPHERAL,
-                  data = listOf(ContextVariable("success", true)),
-                  source = "service",
-                  target = "assemblyController",
-                  emittedTime = getEmitTime())
+      {
+        val endBeamInterruptedEvent =
+          Event(
+            endBeamInterruptionTopic,
+            EventChannel.PERIPHERAL,
+            data = listOf(ContextVariable("success", true)),
+            source = "service",
+            target = "assemblyController",
+            emittedTime = getEmitTime(),
+          )
 
-          emitEvent(endBeamInterruptedEvent, zenohEndBeamInterruptionPublisher)
-        },
-        beltMovementTimeMs,
-        TimeUnit.MILLISECONDS)
+        emitEvent(endBeamInterruptedEvent, zenohEndBeamInterruptionPublisher)
+      },
+      beltMovementTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   httpServer.createContext("/stopbelt") { exchange ->
@@ -181,13 +185,14 @@ fun registerBeltEndpoints(httpServer: HttpServer) {
   }
 
   Runtime.getRuntime()
-      .addShutdownHook(
-          Thread {
-            shutdownServer(httpServer)
-            shutdownExecutorService()
-            shutdownZenohPublishers(zenohEndBeamInterruptionPublisher)
-            shutdownZenohSession(zenohSession)
-          })
+    .addShutdownHook(
+      Thread {
+        shutdownServer(httpServer)
+        shutdownExecutorService()
+        shutdownZenohPublishers(zenohEndBeamInterruptionPublisher)
+        shutdownZenohSession(zenohSession)
+      }
+    )
 
   logger.info("Registered endpoints for Belt")
 }
@@ -211,60 +216,65 @@ fun registerArmEndpoints(httpServer: HttpServer) {
 
   // Declaring publishers
   val zenohArmPickupPublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$armPickupTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$armPickupTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   val zenohAssemblyPublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$assemblyTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$assemblyTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   val zenohArmResetPublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$armResetTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$armResetTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   val pickupOpsCount = AtomicLong(0)
   httpServer.createContext("/pickup") { exchange ->
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
     executorService.schedule(
-        {
-          val opCount =
-              pickupOpsCount.updateAndGet { curr -> if (curr == Long.MAX_VALUE) curr else curr + 1 }
+      {
+        val opCount =
+          pickupOpsCount.updateAndGet { curr -> if (curr == Long.MAX_VALUE) curr else curr + 1 }
 
-          val failureProb =
-              getOperationWeibullFailureProb(pickupMinFailureProb, pickupMaxFailureProb, opCount)
+        val failureProb =
+          getOperationWeibullFailureProb(pickupMinFailureProb, pickupMaxFailureProb, opCount)
 
-          val rand = ThreadLocalRandom.current().nextDouble()
-          val pickupSuccess = rand >= failureProb
+        val rand = ThreadLocalRandom.current().nextDouble()
+        val pickupSuccess = rand >= failureProb
 
-          val pickupEvent =
-              Event(
-                  armPickupTopic,
-                  EventChannel.PERIPHERAL,
-                  data = listOf(ContextVariable("success", pickupSuccess)),
-                  source = "service",
-                  target = "arm",
-                  emittedTime = getEmitTime())
+        val pickupEvent =
+          Event(
+            armPickupTopic,
+            EventChannel.PERIPHERAL,
+            data = listOf(ContextVariable("success", pickupSuccess)),
+            source = "service",
+            target = "arm",
+            emittedTime = getEmitTime(),
+          )
 
-          emitEvent(pickupEvent, zenohArmPickupPublisher)
-        },
-        pickupTimeMs,
-        TimeUnit.MILLISECONDS)
+        emitEvent(pickupEvent, zenohArmPickupPublisher)
+      },
+      pickupTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   val assemblyOpsCount = AtomicLong(0)
@@ -272,63 +282,68 @@ fun registerArmEndpoints(httpServer: HttpServer) {
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
     executorService.schedule(
-        {
-          val opCount =
-              assemblyOpsCount.updateAndGet { curr ->
-                if (curr == Long.MAX_VALUE) curr else curr + 1
-              }
+      {
+        val opCount =
+          assemblyOpsCount.updateAndGet { curr -> if (curr == Long.MAX_VALUE) curr else curr + 1 }
 
-          val failureProb =
-              getOperationWeibullFailureProb(
-                  assemblyMinFailureProb, assemblyMaxFailureProb, opCount)
+        val failureProb =
+          getOperationWeibullFailureProb(assemblyMinFailureProb, assemblyMaxFailureProb, opCount)
 
-          val rand = ThreadLocalRandom.current().nextDouble()
-          val assemblySuccess = rand >= failureProb
+        val rand = ThreadLocalRandom.current().nextDouble()
+        val assemblySuccess = rand >= failureProb
 
-          val assemblyEvent =
-              Event(
-                  assemblyTopic,
-                  EventChannel.PERIPHERAL,
-                  data = listOf(ContextVariable("success", assemblySuccess)),
-                  source = "service",
-                  target = "arm",
-                  emittedTime = getEmitTime())
+        val assemblyEvent =
+          Event(
+            assemblyTopic,
+            EventChannel.PERIPHERAL,
+            data = listOf(ContextVariable("success", assemblySuccess)),
+            source = "service",
+            target = "arm",
+            emittedTime = getEmitTime(),
+          )
 
-          emitEvent(assemblyEvent, zenohAssemblyPublisher)
-        },
-        assemblyTimeMs,
-        TimeUnit.MILLISECONDS)
+        emitEvent(assemblyEvent, zenohAssemblyPublisher)
+      },
+      assemblyTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   httpServer.createContext("/returntostart") { exchange ->
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
     executorService.schedule(
-        {
-          val armResetEvent =
-              Event(
-                  armResetTopic,
-                  EventChannel.PERIPHERAL,
-                  data = listOf(ContextVariable("success", true)),
-                  source = "service",
-                  target = "arm",
-                  emittedTime = getEmitTime())
+      {
+        val armResetEvent =
+          Event(
+            armResetTopic,
+            EventChannel.PERIPHERAL,
+            data = listOf(ContextVariable("success", true)),
+            source = "service",
+            target = "arm",
+            emittedTime = getEmitTime(),
+          )
 
-          emitEvent(armResetEvent, zenohArmResetPublisher)
-        },
-        armResetTimeMs,
-        TimeUnit.MILLISECONDS)
+        emitEvent(armResetEvent, zenohArmResetPublisher)
+      },
+      armResetTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   Runtime.getRuntime()
-      .addShutdownHook(
-          Thread {
-            shutdownServer(httpServer)
-            shutdownExecutorService()
-            shutdownZenohPublishers(
-                zenohArmPickupPublisher, zenohAssemblyPublisher, zenohArmResetPublisher)
-            shutdownZenohSession(zenohSession)
-          })
+    .addShutdownHook(
+      Thread {
+        shutdownServer(httpServer)
+        shutdownExecutorService()
+        shutdownZenohPublishers(
+          zenohArmPickupPublisher,
+          zenohAssemblyPublisher,
+          zenohArmResetPublisher,
+        )
+        shutdownZenohSession(zenohSession)
+      }
+    )
 
   logger.info("Registered endpoints for Arm")
 }
@@ -337,12 +352,12 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
   // Initializing configuration parameters
   val ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
   val ortSession: OrtSession =
-      ortEnv.createSession("models/yolov8n.onnx", OrtSession.SessionOptions())
+    ortEnv.createSession("models/yolov8n.onnx", OrtSession.SessionOptions())
 
   val validObjectImageNames: Array<String> =
-      arrayOf("test.png", "test2.png", "test5.png", "test6.png")
+    arrayOf("test.png", "test2.png", "test5.png", "test6.png")
   val invalidObjectImageNames: Array<String> =
-      arrayOf("test3.png", "test4.png", "test7.png", "test8.png")
+    arrayOf("test3.png", "test4.png", "test7.png", "test8.png")
 
   val photoCaptureTimeMs: Long = 500
   val photoScanTimeMs: Long = 700
@@ -358,109 +373,117 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
 
   // Declaring publishers
   val zenohPhotoCapturePublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$photoCapturedTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$photoCapturedTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   val zenohPhotoScanPublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$photoScannedTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$photoScannedTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   val zenohObjectDisposalPublisher =
-      zenohSession
-          .declareAdvancedPublisher(
-              KeyExpr.tryFrom("events/peripheral/$objectDisposalTopic").getOrThrow(),
-              cacheConfig = CacheConfig(1000L),
-              sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-              publisherDetection = true)
-          .getOrThrow()
+    zenohSession
+      .declareAdvancedPublisher(
+        KeyExpr.tryFrom("events/peripheral/$objectDisposalTopic").getOrThrow(),
+        cacheConfig = CacheConfig(1000L),
+        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
+        publisherDetection = true,
+      )
+      .getOrThrow()
 
   httpServer.createContext("/takephoto") { exchange ->
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
     executorService.schedule(
-        {
-          try {
-            val photoCaptureEvent =
-                Event(
-                    photoCapturedTopic,
-                    EventChannel.PERIPHERAL,
-                    data = mutableListOf(),
-                    source = "service",
-                    target = "assemblyController",
-                    emittedTime = getEmitTime(),
-                )
+      {
+        try {
+          val photoCaptureEvent =
+            Event(
+              photoCapturedTopic,
+              EventChannel.PERIPHERAL,
+              data = mutableListOf(),
+              source = "service",
+              target = "assemblyController",
+              emittedTime = getEmitTime(),
+            )
 
-            val rand = ThreadLocalRandom.current().nextDouble()
+          val rand = ThreadLocalRandom.current().nextDouble()
 
-            if (rand <= validObjProb)
-                (photoCaptureEvent.data as MutableList<ContextVariable>).add(
-                    ContextVariable(
-                        "data",
-                        Files.readAllBytes(
-                            Paths.get(
-                                "imgs", "valid", validObjectImageNames[(rand * 100).toInt() % 4]))))
-            else
-                (photoCaptureEvent.data as MutableList<ContextVariable>).add(
-                    ContextVariable(
-                        "data",
-                        Files.readAllBytes(
-                            Paths.get(
-                                "imgs",
-                                "invalid",
-                                invalidObjectImageNames[(rand * 100).toInt() % 4]))))
+          if (rand <= validObjProb)
+            (photoCaptureEvent.data as MutableList<ContextVariable>).add(
+              ContextVariable(
+                "data",
+                Files.readAllBytes(
+                  Paths.get("imgs", "valid", validObjectImageNames[(rand * 100).toInt() % 4])
+                ),
+              )
+            )
+          else
+            (photoCaptureEvent.data as MutableList<ContextVariable>).add(
+              ContextVariable(
+                "data",
+                Files.readAllBytes(
+                  Paths.get("imgs", "invalid", invalidObjectImageNames[(rand * 100).toInt() % 4])
+                ),
+              )
+            )
 
-            emitEvent(photoCaptureEvent, zenohPhotoCapturePublisher)
-          } catch (exe: Exception) {
-            logger.error("Failed to take photo", exe)
-          }
-        },
-        photoCaptureTimeMs,
-        TimeUnit.MILLISECONDS)
+          emitEvent(photoCaptureEvent, zenohPhotoCapturePublisher)
+        } catch (exe: Exception) {
+          logger.error("Failed to take photo", exe)
+        }
+      },
+      photoCaptureTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   httpServer.createContext("/scanphoto") { exchange ->
     exchange.use {
       try {
         val input =
-            Serializer.deserialize<List<ContextVariable>>(exchange.requestBody.readAllBytes())
+          Serializer.deserialize<List<ContextVariable>>(exchange.requestBody.readAllBytes())
 
         if (input.isEmpty() || input[0].name != "imgData")
-            throw IllegalArgumentException("Invalid input")
+          throw IllegalArgumentException("Invalid input")
 
         val imgData =
-            input[0].value as? ByteArray ?: throw IllegalArgumentException("Invalid input")
+          input[0].value as? ByteArray ?: throw IllegalArgumentException("Invalid input")
 
         executorService.schedule(
-            {
-              try {
-                val validObj = detectPart(imgData, intArrayOf(640, 640), ortEnv, ortSession)
+          {
+            try {
+              val validObj = detectPart(imgData, intArrayOf(640, 640), ortEnv, ortSession)
 
-                val photoScanEvent =
-                    Event(
-                        photoScannedTopic,
-                        EventChannel.PERIPHERAL,
-                        data = listOf(ContextVariable("validObject", validObj)),
-                        source = "service",
-                        target = "assemblyController",
-                        emittedTime = getEmitTime())
+              val photoScanEvent =
+                Event(
+                  photoScannedTopic,
+                  EventChannel.PERIPHERAL,
+                  data = listOf(ContextVariable("validObject", validObj)),
+                  source = "service",
+                  target = "assemblyController",
+                  emittedTime = getEmitTime(),
+                )
 
-                emitEvent(photoScanEvent, zenohPhotoScanPublisher)
-              } catch (exe: Exception) {
-                logger.error("Failed to scan photo", exe)
-              }
-            },
-            photoScanTimeMs,
-            TimeUnit.MILLISECONDS)
+              emitEvent(photoScanEvent, zenohPhotoScanPublisher)
+            } catch (exe: Exception) {
+              logger.error("Failed to scan photo", exe)
+            }
+          },
+          photoScanTimeMs,
+          TimeUnit.MILLISECONDS,
+        )
 
         exchange.sendResponseHeaders(200, -1)
       } catch (exe: IllegalArgumentException) {
@@ -477,33 +500,39 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
     executorService.schedule(
-        {
-          val objectDisposalEvent =
-              Event(
-                  objectDisposalTopic,
-                  EventChannel.PERIPHERAL,
-                  data = listOf(ContextVariable("success", true)),
-                  source = "service",
-                  target = "assemblyController",
-                  emittedTime = getEmitTime())
+      {
+        val objectDisposalEvent =
+          Event(
+            objectDisposalTopic,
+            EventChannel.PERIPHERAL,
+            data = listOf(ContextVariable("success", true)),
+            source = "service",
+            target = "assemblyController",
+            emittedTime = getEmitTime(),
+          )
 
-          emitEvent(objectDisposalEvent, zenohObjectDisposalPublisher)
-        },
-        beltMovementTimeMs,
-        TimeUnit.MILLISECONDS)
+        emitEvent(objectDisposalEvent, zenohObjectDisposalPublisher)
+      },
+      beltMovementTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   // Adding cleanup code
   Runtime.getRuntime()
-      .addShutdownHook(
-          Thread {
-            shutdownServer(httpServer)
-            shutdownExecutorService()
-            shutdownZenohPublishers(
-                zenohPhotoCapturePublisher, zenohPhotoScanPublisher, zenohObjectDisposalPublisher)
-            shutdownZenohSession(zenohSession)
-            shutdownOrt(ortSession, ortEnv)
-          })
+    .addShutdownHook(
+      Thread {
+        shutdownServer(httpServer)
+        shutdownExecutorService()
+        shutdownZenohPublishers(
+          zenohPhotoCapturePublisher,
+          zenohPhotoScanPublisher,
+          zenohObjectDisposalPublisher,
+        )
+        shutdownZenohSession(zenohSession)
+        shutdownOrt(ortSession, ortEnv)
+      }
+    )
 
   logger.info("Registered endpoints for Assembly Controller")
 }
@@ -517,11 +546,11 @@ fun emitEvent(event: Event, publisher: AdvancedPublisher) {
 }
 
 fun detectPart(
-    imgData: ByteArray,
-    onnxInputDims: IntArray,
-    env: OrtEnvironment,
-    session: OrtSession,
-    confThreshold: Float = 0.25f
+  imgData: ByteArray,
+  onnxInputDims: IntArray,
+  env: OrtEnvironment,
+  session: OrtSession,
+  confThreshold: Float = 0.25f,
 ): Boolean {
   try {
     val inputWidth = onnxInputDims[0]
@@ -536,26 +565,27 @@ fun detectPart(
     val inputName = session.inputNames.iterator().next()
 
     OnnxTensor.createTensor(
-            env,
-            FloatBuffer.wrap(chwfTensor),
-            longArrayOf(1, 3, inputWidth.toLong(), inputHeight.toLong()))
-        .use { tensor ->
-          session.run(mapOf(inputName to tensor)).use { outputs ->
-            val detections = outputs[0].value as Array<Array<FloatArray>>
+        env,
+        FloatBuffer.wrap(chwfTensor),
+        longArrayOf(1, 3, inputWidth.toLong(), inputHeight.toLong()),
+      )
+      .use { tensor ->
+        session.run(mapOf(inputName to tensor)).use { outputs ->
+          val detections = outputs[0].value as Array<Array<FloatArray>>
 
-            for (detection in detections[0]) {
-              if (detection.size < 6) continue
+          for (detection in detections[0]) {
+            if (detection.size < 6) continue
 
-              val conf = detection[4]
+            val conf = detection[4]
 
-              if (conf < confThreshold) continue
+            if (conf < confThreshold) continue
 
-              val classId = detection[5]
+            val classId = detection[5]
 
-              if (classId == 39f) return true
-            }
+            if (classId == 39f) return true
           }
         }
+      }
   } catch (exe: Exception) {
     logger.error("Failed to detect object", exe)
   }
@@ -590,7 +620,7 @@ fun toCHWFTensor(img: BufferedImage): FloatArray {
 fun letterboxImage(src: BufferedImage, targetW: Int, targetH: Int): BufferedImage {
 
   val scale =
-      min(targetW.toDouble() / src.width.toDouble(), targetH.toDouble() / src.height.toDouble())
+    min(targetW.toDouble() / src.width.toDouble(), targetH.toDouble() / src.height.toDouble())
 
   val newW = (src.width * scale).roundToInt()
 
@@ -618,16 +648,16 @@ fun letterboxImage(src: BufferedImage, targetW: Int, targetH: Int): BufferedImag
 }
 
 fun getOperationWeibullFailureProb(
-    minFailureProb: Double,
-    maxFailureProb: Double,
-    operation: Long,
-    shape: Double = 3.0,
-    scale: Double = 100.0
+  minFailureProb: Double,
+  maxFailureProb: Double,
+  operation: Long,
+  shape: Double = 3.0,
+  scale: Double = 100.0,
 ): Double {
   // Monotonically increasing Weibull-shaped probability
 
   return minFailureProb +
-      (maxFailureProb - minFailureProb) * (1 - exp(-(operation.toDouble() / scale).pow(shape)))
+    (maxFailureProb - minFailureProb) * (1 - exp(-(operation.toDouble() / scale).pow(shape)))
 }
 
 fun getEmitTime(): Long {
