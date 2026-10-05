@@ -50,20 +50,20 @@ val zenohConfig =
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.FactoryServiceKt")
 
-val SERVICE_ROLE = System.getenv("SERVICE_ROLE") ?: "" // The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
+val serviceRole = System.getenv("SERVICE_ROLE") ?: "" // The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
 
 fun main() {
     try {
         val httpServer = HttpServer.create(InetSocketAddress(6000), 0)
 
-        when(SERVICE_ROLE) {
+        when(serviceRole) {
             "monitor" -> registerMonitorEndpoints(httpServer)
             "mp" -> registerMessageProcessorEndpoints(httpServer)
             "belt" -> registerBeltEndpoints(httpServer)
             "arm" -> registerArmEndpoints(httpServer)
             "ac" -> registerAssemblyControllerEndpoints(httpServer)
             else -> throw IllegalArgumentException(
-                "Unknown SERVICE_ROLE: $SERVICE_ROLE"
+                "Unknown SERVICE_ROLE: $serviceRole"
             )
         }
 
@@ -404,7 +404,7 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer)
     val invalidObjectImageNames: Array<String> =
         arrayOf("test3.png", "test4.png", "test7.png", "test8.png")
 
-    val photocaptureTimeMs: Long = 500
+    val photoCaptureTimeMs: Long = 500
     val photoScanTimeMs: Long = 700
     val validObjProb: Double = 1.0
     val beltMovementTimeMs: Long = 400
@@ -493,7 +493,7 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer)
                     logger.error("Failed to take photo", exe)
                 }
             },
-            photocaptureTimeMs,
+            photoCaptureTimeMs,
             TimeUnit.MILLISECONDS
         )
     }
