@@ -10,6 +10,7 @@ on:
 
 jobs:
   PushDockerImage:
+    if: github.repository == 'CollaborativeStateMachines/Cirrina-CSML-SmartFactory'
     name: Push Docker Image - ${{ matrix.name }}
     runs-on: ubuntu-latest
     permissions:
