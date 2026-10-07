@@ -51,7 +51,7 @@ val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.Fa
 
 val serviceRole =
   System.getenv("SERVICE_ROLE")
-    ?: "" // The state machine role that the process provides services for - "monitor", "mp", "belt", "arm", "ac"
+    ?: "" // The state machine role that the process provides services for
 
 fun main() {
   try {
