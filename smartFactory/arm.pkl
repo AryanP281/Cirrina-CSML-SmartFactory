@@ -65,6 +65,12 @@ sm = new csml.StateMachine {
                   yields {
                     new csml.Emit {
                       event { topic = Events.ePickedUp }
+                      target = "'assemblyController'"
+                    }
+
+                    new csml.Emit {
+                      event { topic = Events.ePickedUp }
+                      target = "'conveyorBelt'"
                     }
                   }
                 }
