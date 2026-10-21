@@ -41,7 +41,6 @@ sm = new csml.StateMachine {
                 new csml.Case {
                   of = "firstDetection"
                   yields {
-                    new csml.Emit { event { topic = Events.eProductionStarted } }
                     new csml.Eval { expression = "firstDetection = false" }
                   }
                 }
