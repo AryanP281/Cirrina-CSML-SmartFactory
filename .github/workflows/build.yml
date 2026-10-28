@@ -2,13 +2,12 @@ name: Build
 
 on:
   push:
-    branches: ["develop"]
+    branches: ["updated-measurements"]
   pull_request:
     branches: ["develop"]
 
 jobs:
   Build:
-    if: github.repository == 'CollaborativeStateMachines/Cirrina-CSML-SmartFactory'
     runs-on: ubuntu-latest
     permissions:
       contents: read
