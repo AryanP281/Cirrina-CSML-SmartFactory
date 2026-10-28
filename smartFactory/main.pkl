@@ -3,7 +3,7 @@ amends
 import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/arm.pkl"
 import
-  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/assemblyController.pkl"
+  "./assemblyController.pkl"
 import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/belt.pkl"
 import
@@ -12,6 +12,7 @@ import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/messageProcessor.pkl"
 import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/monitor.pkl"
+import "./collector.pkl"
 import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/serviceTypes.pkl"
   as ServiceTypes
@@ -27,6 +28,7 @@ collaborativeStateMachine {
     ["messageProcessor"] = messageProcessor.email
     ["monitor"] = monitor.sm
     ["assemblyController"] = assemblyController.sm
+    ["collector"] = collector.sm
   }
 
   persistent {
@@ -43,6 +45,7 @@ instances {
   ["arm"] { stateMachineName = "arm" }
   ["monitor"] { stateMachineName = "monitor" }
   ["assemblyController"] { stateMachineName = "assemblyController" }
+  ["collector"] {stateMachineName = "collector"}
 }
 
 bindings {
