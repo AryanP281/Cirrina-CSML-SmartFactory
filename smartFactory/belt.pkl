@@ -46,7 +46,9 @@ sm = new csml.StateMachine {
 
     ["unloading"] = new csml.State {
       entry {
-        new csml.Emit { event { topic = Events.eArmPickup }; target = "'arm'" }
+        new csml.Emit { event { topic = Events.eArmPickup; data {
+          ["partId"] = "$partId"
+        } }; target = "'arm'" }
       }
 
       after {

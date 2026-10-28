@@ -1,11 +1,11 @@
 amends
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
 import
-  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/arm.pkl"
+  "./arm.pkl"
 import
   "./assemblyController.pkl"
 import
-  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/belt.pkl"
+  "./belt.pkl"
 import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/jobController.pkl"
 import
