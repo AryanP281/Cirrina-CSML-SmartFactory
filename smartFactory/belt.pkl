@@ -1,8 +1,8 @@
 import
-  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/events.pkl"
+  "https://raw.githubusercontent.com/AryanP281/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/events.pkl"
   as Events
 import
-  "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/serviceTypes.pkl"
+  "https://raw.githubusercontent.com/AryanP281/Cirrina-CSML-SmartFactory/refs/heads/develop/smartFactory/serviceTypes.pkl"
   as ServiceTypes
 import
   "https://raw.githubusercontent.com/CollaborativeStateMachines/Cirrina/refs/heads/develop/src/main/resources/pkl/csm/csml.pkl"
