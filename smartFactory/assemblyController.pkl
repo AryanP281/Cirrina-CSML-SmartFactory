@@ -186,7 +186,9 @@ sm = new csml.StateMachine {
           to = "unloading"
           yields {
             new csml.Emit {
-              event = new csml.Event { topic = Events.eStartUnload }
+              event = new csml.Event { topic = Events.eStartUnload; data {
+                ["partId"] = "lastProcessedPartId"
+              } }
               target = "'conveyorBelt'"
             }
           }
