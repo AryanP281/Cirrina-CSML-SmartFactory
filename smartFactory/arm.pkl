@@ -16,6 +16,7 @@ sm = new csml.StateMachine {
     ["errorMsg"] = "''"
     ["partsAssembled"] = "0"
     ["partsPerProduct"] = "1000"
+    ["currentPartId"] = "0L"
   }
 
   states {
@@ -40,6 +41,18 @@ sm = new csml.StateMachine {
         [Events.eArmPickup] {
           to = "pickup"
           provided = "!\(Vars.vIsJobDone)"
+          yields {
+           new csml.Match {
+             cases {
+               new csml.Case {
+                 of = "pickupSuccess"
+                 yields {
+                   new csml.Eval {expression = "currentPartId = $partId"}
+                 }
+               }
+             }
+           }
+          }
         }
         [Events.ePickupNotSuccess] {
           to = "pickup"
@@ -164,7 +177,9 @@ sm = new csml.StateMachine {
           yields {
             new csml.Eval { expression = "partsAssembled = partsAssembled + 1" }
             new csml.Emit {
-              event { topic = Events.eAssemblyComplete }
+              event { topic = Events.eAssemblyComplete; data {
+                ["partId"] = "currentPartId"
+              } }
               target = "'monitor'"
             }
           }
