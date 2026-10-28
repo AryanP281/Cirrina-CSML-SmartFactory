@@ -10,7 +10,7 @@ import
 sm = new csml.StateMachine {
   transient = new Mapping {
     ["nextReceivedPartId"] = "0L"
-    ["lastProcessedPartId"] = "0L"
+    ["nextPartToProcessId"] = "0L"
   }
 
   states {
@@ -19,7 +19,7 @@ sm = new csml.StateMachine {
         new csml.Match {
           cases {
             new csml.Case {
-              of = "(nextReceivedPartId - lastProcessedPartId) > 0"
+              of = "(nextReceivedPartId - nextPartToProcessId) > 0"
               yields {
                 new csml.Emit { event = new csml.Internal { topic = Events.ePartDetectedAtStart} }
               }
@@ -42,7 +42,7 @@ sm = new csml.StateMachine {
           to = "capturePhoto"
           yields {
             new csml.Emit {event {topic = Events.ePartAssemblyInitiated; data {
-              ["partId"] = "lastProcessedPartId"
+              ["partId"] = "nextPartToProcessId"
             }}
             target = "'collector'"}
           }
@@ -168,6 +168,9 @@ sm = new csml.StateMachine {
 
         [Events.eObjectDiscarded] {
           to = "detectingStart"
+          yields {
+            new csml.Eval {expression = "nextPartToProcessId += 1"}
+          }
         }
 
         [Events.eBeamInterruptedStart] {
@@ -187,7 +190,7 @@ sm = new csml.StateMachine {
           yields {
             new csml.Emit {
               event = new csml.Event { topic = Events.eStartUnload; data {
-                ["partId"] = "lastProcessedPartId"
+                ["partId"] = "nextPartToProcessId"
               } }
               target = "'conveyorBelt'"
             }
@@ -213,7 +216,7 @@ sm = new csml.StateMachine {
         [Events.ePickedUp] {
           to = "detectingStart"
           yields {
-            new csml.Eval {expression = "lastProcessedPartId += 1"}
+            new csml.Eval {expression = "nextPartToProcessId += 1"}
           }
         }
 
