@@ -210,6 +210,9 @@ sm = new csml.StateMachine {
       on {
         [Events.ePickedUp] {
           to = "detectingStart"
+          yields {
+            new csml.Eval {expression = "lastProcessedPartId += 1"}
+          }
         }
 
         [Events.eJobDone] {
