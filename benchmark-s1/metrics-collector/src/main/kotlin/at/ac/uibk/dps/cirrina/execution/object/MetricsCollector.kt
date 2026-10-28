@@ -12,11 +12,11 @@ import io.zenoh.ext.HistoryConfig
 import io.zenoh.ext.RecoveryConfig
 import io.zenoh.ext.RecoveryMode
 import io.zenoh.keyexpr.KeyExpr
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.slf4j.LoggerFactory
 
 val zenohConfig =
   System.getenv("ZENOH_CONFIG_URI")?.let { path -> Config.fromFile(File(path)).getOrThrow() }
@@ -33,7 +33,7 @@ val partArrivals: Meter = metricsRegistry.meter("partArrivals")
 
 val partsCompleted: Meter = metricsRegistry.meter("partsCompleted")
 
-val partAssemblyTimes : Timer = metricsRegistry.timer("partAssemblyTimes")
+val partAssemblyTimes: Timer = metricsRegistry.timer("partAssemblyTimes")
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.MetricsCollectorKt")
 
@@ -65,17 +65,13 @@ fun main() {
         partsCompleted.mark()
 
         val event = Serializer.deserialize<Event>(sample.payload.toBytes())
-        val partId = (event.data.filter {it.name == "partId" }[0]).value as Long
+        val partId = (event.data.filter { it.name == "partId" }[0]).value as Long
         val partAssemblyStartTime = partAssemblyStartTimes.remove(partId)
 
         if (partAssemblyStartTime != null) {
-          val assemblyTime =
-            (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
+          val assemblyTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
 
-          partAssemblyTimes.update(
-            assemblyTime,
-            TimeUnit.NANOSECONDS
-          )
+          partAssemblyTimes.update(assemblyTime, TimeUnit.NANOSECONDS)
         } else {
           logger.warn("No assembly start time found for part $partId")
         }
@@ -91,7 +87,7 @@ fun main() {
       historyConfig = HistoryConfig(detectLatePublishers = true),
       callback = { sample ->
         val event = Serializer.deserialize<Event>(sample.payload.toBytes())
-        val partId = (event.data.filter {it.name == "partId" }[0]).value as Long
+        val partId = (event.data.filter { it.name == "partId" }[0]).value as Long
         partAssemblyStartTimes.set(partId, event.emittedTime)
       },
     )
