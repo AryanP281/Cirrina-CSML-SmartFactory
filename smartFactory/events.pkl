@@ -89,3 +89,6 @@ ePartAssemblyInitiated = "ePartAssemblyInitiated"
 
 // Event indicating that assembly controller has finished processing a part
 ePartProcessingComplete = "ePartProcessingComplete"
+
+// Event indicating that belt has finished moving a part
+ePartMovingComplete = "ePartMovingComplete"

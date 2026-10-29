@@ -37,9 +37,11 @@ val partsCompleted: Meter = metricsRegistry.meter("partsCompleted")
 val metricsDir: Path = Path.of("./metrics")
 val assemblyTimesFile: Path = metricsDir.resolve("partAssemblyTimes.csv")
 val assemblyControllerTimesFile: Path = metricsDir.resolve("assemblyControllerTimes.csv")
+val beltMovementTimesFile: Path = metricsDir.resolve("beltMovementTimesFile.csv")
 
 val assemblyTimesCsvLock = Any()
 val assemblyControllerTimesCsvLock = Any()
+val beltMovementTimesCsvLock = Any()
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.MetricsCollectorKt")
 
@@ -62,6 +64,15 @@ fun main() {
     Files.writeString(
       assemblyControllerTimesFile,
       "partId,startTimeNs,endTimeNs,assemblyControllerTimeNs\n",
+      StandardOpenOption.CREATE,
+      StandardOpenOption.WRITE,
+    )
+  }
+
+  if (!Files.exists(beltMovementTimesFile)) {
+    Files.writeString(
+      beltMovementTimesFile,
+      "partId,startTimeNs,endTimeNs,beltMovementTimeNs\n",
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE,
     )
@@ -150,6 +161,37 @@ fun main() {
             Files.writeString(
               assemblyControllerTimesFile,
               "$partId,$partAssemblyStartTime,${event.emittedTime},$assemblyControllerTime\n",
+              StandardOpenOption.CREATE,
+              StandardOpenOption.APPEND,
+            )
+          }
+        } else {
+          logger.warn("No assembly start time found for part $partId")
+        }
+      },
+    )
+    .getOrThrow()
+
+  zenohSession
+    .declareAdvancedSubscriber(
+      KeyExpr.tryFrom("events/assemblyController/ePartMovingComplete").getOrThrow(),
+      subscriberDetection = true,
+      recoveryConfig = RecoveryConfig(RecoveryMode.Heartbeat),
+      historyConfig = HistoryConfig(detectLatePublishers = true),
+      callback = { sample ->
+        val event = Serializer.deserialize<Event>(sample.payload.toBytes())
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
+        val partAssemblyStartTime = partAssemblyStartTimes.remove(partId)
+
+        if (partAssemblyStartTime != null) {
+          val movementTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
+
+          synchronized(beltMovementTimesCsvLock) {
+            Files.writeString(
+              beltMovementTimesFile,
+              "$partId,$partAssemblyStartTime,${event.emittedTime},$movementTime\n",
               StandardOpenOption.CREATE,
               StandardOpenOption.APPEND,
             )
