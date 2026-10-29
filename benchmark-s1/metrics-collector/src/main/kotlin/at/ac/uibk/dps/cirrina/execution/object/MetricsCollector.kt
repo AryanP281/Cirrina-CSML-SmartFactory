@@ -5,7 +5,6 @@ import at.ac.uibk.dps.cirrina.spec.Event
 import com.codahale.metrics.CsvReporter
 import com.codahale.metrics.Meter
 import com.codahale.metrics.MetricRegistry
-import com.codahale.metrics.Timer
 import io.zenoh.Config
 import io.zenoh.Zenoh
 import io.zenoh.ext.HistoryConfig
@@ -13,6 +12,9 @@ import io.zenoh.ext.RecoveryConfig
 import io.zenoh.ext.RecoveryMode
 import io.zenoh.keyexpr.KeyExpr
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -30,10 +32,12 @@ val metricsPeriod = System.getenv("METRICS_PERIOD")?.toLong() ?: 1L
 val metricsRegistry = MetricRegistry()
 
 val partArrivals: Meter = metricsRegistry.meter("partArrivals")
-
 val partsCompleted: Meter = metricsRegistry.meter("partsCompleted")
 
-val partAssemblyTimes: Timer = metricsRegistry.timer("partAssemblyTimes")
+val metricsDir: Path = Path.of("./metrics")
+val assemblyTimesFile: Path = metricsDir.resolve("partAssemblyTimes.csv")
+
+val csvLock = Any()
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.MetricsCollectorKt")
 
@@ -41,8 +45,19 @@ val shutdownLatch = CountDownLatch(1)
 
 fun main() {
 
+  Files.createDirectories(metricsDir)
+
+  if (!Files.exists(assemblyTimesFile)) {
+    Files.writeString(
+      assemblyTimesFile,
+      "partId,startTimeNs,endTimeNs,assemblyTimeNs\n",
+      StandardOpenOption.CREATE,
+      StandardOpenOption.WRITE,
+    )
+  }
+
   CsvReporter.forRegistry(metricsRegistry)
-    .build(File("./metrics"))
+    .build(metricsDir.toFile())
     .start(metricsPeriod, TimeUnit.SECONDS)
 
   zenohSession
@@ -65,13 +80,22 @@ fun main() {
         partsCompleted.mark()
 
         val event = Serializer.deserialize<Event>(sample.payload.toBytes())
-        val partId = (event.data.filter { it.name == "partId" }[0]).value as Long
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
         val partAssemblyStartTime = partAssemblyStartTimes.remove(partId)
 
         if (partAssemblyStartTime != null) {
           val assemblyTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
 
-          partAssemblyTimes.update(assemblyTime, TimeUnit.NANOSECONDS)
+          synchronized(csvLock) {
+            Files.writeString(
+              assemblyTimesFile,
+              "$partId,$partAssemblyStartTime,${event.emittedTime},$assemblyTime\n",
+              StandardOpenOption.CREATE,
+              StandardOpenOption.APPEND,
+            )
+          }
         } else {
           logger.warn("No assembly start time found for part $partId")
         }
@@ -87,8 +111,10 @@ fun main() {
       historyConfig = HistoryConfig(detectLatePublishers = true),
       callback = { sample ->
         val event = Serializer.deserialize<Event>(sample.payload.toBytes())
-        val partId = (event.data.filter { it.name == "partId" }[0]).value as Long
-        partAssemblyStartTimes.set(partId, event.emittedTime)
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
+        partAssemblyStartTimes[partId] = event.emittedTime
       },
     )
     .getOrThrow()
