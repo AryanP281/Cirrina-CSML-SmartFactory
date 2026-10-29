@@ -216,6 +216,11 @@ sm = new csml.StateMachine {
         [Events.ePickedUp] {
           to = "detectingStart"
           yields {
+            new csml.Emit {event {topic = Events.ePartProcessingComplete; data {
+              ["partId"] = "nextPartToProcessId"
+            }}
+            target = "'collector'"
+            }
             new csml.Eval {expression = "nextPartToProcessId += 1"}
           }
         }

@@ -36,8 +36,10 @@ val partsCompleted: Meter = metricsRegistry.meter("partsCompleted")
 
 val metricsDir: Path = Path.of("./metrics")
 val assemblyTimesFile: Path = metricsDir.resolve("partAssemblyTimes.csv")
+val assemblyControllerTimesFile: Path = metricsDir.resolve("assemblyControllerTimes.csv")
 
-val csvLock = Any()
+val assemblyTimesCsvLock = Any()
+val assemblyControllerTimesCsvLock = Any()
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.MetricsCollectorKt")
 
@@ -51,6 +53,15 @@ fun main() {
     Files.writeString(
       assemblyTimesFile,
       "partId,startTimeNs,endTimeNs,assemblyTimeNs\n",
+      StandardOpenOption.CREATE,
+      StandardOpenOption.WRITE,
+    )
+  }
+
+  if (!Files.exists(assemblyControllerTimesFile)) {
+    Files.writeString(
+      assemblyControllerTimesFile,
+      "partId,startTimeNs,endTimeNs,assemblyControllerTimeNs\n",
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE,
     )
@@ -88,7 +99,7 @@ fun main() {
         if (partAssemblyStartTime != null) {
           val assemblyTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
 
-          synchronized(csvLock) {
+          synchronized(assemblyTimesCsvLock) {
             Files.writeString(
               assemblyTimesFile,
               "$partId,$partAssemblyStartTime,${event.emittedTime},$assemblyTime\n",
@@ -115,6 +126,37 @@ fun main() {
         val partId = event.data.first { it.name == "partId" }.value as Long
 
         partAssemblyStartTimes[partId] = event.emittedTime
+      },
+    )
+    .getOrThrow()
+
+  zenohSession
+    .declareAdvancedSubscriber(
+      KeyExpr.tryFrom("events/assemblyController/ePartProcessingComplete").getOrThrow(),
+      subscriberDetection = true,
+      recoveryConfig = RecoveryConfig(RecoveryMode.Heartbeat),
+      historyConfig = HistoryConfig(detectLatePublishers = true),
+      callback = { sample ->
+        val event = Serializer.deserialize<Event>(sample.payload.toBytes())
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
+        val partAssemblyStartTime = partAssemblyStartTimes.remove(partId)
+
+        if (partAssemblyStartTime != null) {
+          val assemblyControllerTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
+
+          synchronized(assemblyControllerTimesCsvLock) {
+            Files.writeString(
+              assemblyControllerTimesFile,
+              "$partId,$partAssemblyStartTime,${event.emittedTime},$assemblyControllerTime\n",
+              StandardOpenOption.CREATE,
+              StandardOpenOption.APPEND,
+            )
+          }
+        } else {
+          logger.warn("No assembly start time found for part $partId")
+        }
       },
     )
     .getOrThrow()

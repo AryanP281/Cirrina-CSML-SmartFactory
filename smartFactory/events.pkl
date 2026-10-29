@@ -84,5 +84,8 @@ eObjectDiscarded = "eObjectDiscarded"
 // Event indicating that an part has been detected at the start of the belt
 ePartDetectedAtStart = "ePartDetectedAtStart"
 
-//Event indicating that the assembly of the given part has been initiated
+// Event indicating that the assembly of the given part has been initiated
 ePartAssemblyInitiated = "ePartAssemblyInitiated"
+
+// Event indicating that assembly controller has finished processing a part
+ePartProcessingComplete = "ePartProcessingComplete"
