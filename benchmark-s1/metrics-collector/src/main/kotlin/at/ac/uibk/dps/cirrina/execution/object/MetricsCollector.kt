@@ -27,6 +27,7 @@ val zenohConfig =
 val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
 val partAssemblyStartTimes = ConcurrentHashMap<Long, Long>()
+val assemblyControllerStartTimes = ConcurrentHashMap<Long, Long>()
 val beltMovementStartTimes = ConcurrentHashMap<Long,Long>()
 
 val metricsPeriod = System.getenv("METRICS_PERIOD")?.toLong() ?: 1L
@@ -136,6 +137,7 @@ fun main() {
         val partId = event.data.first { it.name == "partId" }.value as Long
 
         partAssemblyStartTimes[partId] = event.emittedTime
+        assemblyControllerStartTimes[partId] = event.emittedTime
       },
     )
     .getOrThrow()
@@ -151,7 +153,7 @@ fun main() {
 
         val partId = event.data.first { it.name == "partId" }.value as Long
 
-        val partAssemblyStartTime = partAssemblyStartTimes.get(partId)
+        val partAssemblyStartTime = assemblyControllerStartTimes.remove(partId)
 
         if (partAssemblyStartTime != null) {
           val assemblyControllerTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
@@ -212,7 +214,7 @@ fun main() {
             )
           }
         } else {
-          logger.warn("No assembly start time found for part $partId")
+          logger.warn("No movement start time found for part $partId")
         }
       },
     )
