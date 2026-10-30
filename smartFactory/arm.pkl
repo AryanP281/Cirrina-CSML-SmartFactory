@@ -219,6 +219,12 @@ sm = new csml.StateMachine {
                 }
               }
             }
+
+            new csml.Emit {event {topic = Events.eArmCompletedProcessing; data {
+              ["partId"] = "currentPartId"
+            }}
+            target = "'collector'"
+            }
           }
         }
       }

@@ -95,3 +95,6 @@ ePartMovementInitiated = "ePartMovementInitiated"
 
 // Event indicating that belt has finished moving a part
 ePartMovingComplete = "ePartMovingComplete"
+
+// Event indicating that arm has completed the processing of the current part
+eArmCompletedProcessing = "eArmCompletedProcessing"
