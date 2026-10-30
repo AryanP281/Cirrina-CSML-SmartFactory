@@ -183,9 +183,6 @@ fun main() {
         val partId = event.data.first { it.name == "partId" }.value as Long
 
         beltMovementStartTimes[partId] = event.emittedTime
-
-        } else {
-          logger.warn("No assembly start time found for part $partId")
         }
       },
     )
