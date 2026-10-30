@@ -17,6 +17,14 @@ sm = new csml.StateMachine {
       on {
         [Events.eObjectValid] {
           to = "transporting"
+          yields {
+            new csml.Eval {expression = "currentPartId = $partId"}
+            new csml.Emit {event {topic = Events.ePartMovementInitiated; data{
+              ["partId"] = "$partId"
+            }}
+              target = "'collector'"
+            }
+          }
         }
         [Events.eJobDone] {
           to = "jobDone"
@@ -50,7 +58,6 @@ sm = new csml.StateMachine {
 
     ["unloading"] = new csml.State {
       entry {
-        new csml.Eval {expression = "currentPartId = $partId"}
         new csml.Emit { event { topic = Events.eArmPickup; data {
           ["partId"] = "currentPartId"
         } }; target = "'arm'" }

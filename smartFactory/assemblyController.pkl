@@ -126,7 +126,9 @@ sm = new csml.StateMachine {
           to = "detectingEnd"
           yields {
             new csml.Emit {
-              event = new csml.Event { topic = Events.eObjectValid }
+              event = new csml.Event { topic = Events.eObjectValid; data {
+                ["partId"] = "nextPartToProcessId"
+              } }
               target = "'conveyorBelt'"
             }
           }
