@@ -28,7 +28,7 @@ val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
 val partAssemblyStartTimes = ConcurrentHashMap<Long, Long>()
 val assemblyControllerStartTimes = ConcurrentHashMap<Long, Long>()
-val beltMovementStartTimes = ConcurrentHashMap<Long,Long>()
+val beltMovementStartTimes = ConcurrentHashMap<Long, Long>()
 
 val metricsPeriod = System.getenv("METRICS_PERIOD")?.toLong() ?: 1L
 val metricsRegistry = MetricRegistry()
