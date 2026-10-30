@@ -27,6 +27,7 @@ val zenohConfig =
 val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
 val partAssemblyStartTimes = ConcurrentHashMap<Long, Long>()
+val beltMovementStartTimes = ConcurrentHashMap<Long,Long>()
 
 val metricsPeriod = System.getenv("METRICS_PERIOD")?.toLong() ?: 1L
 val metricsRegistry = MetricRegistry()
@@ -36,8 +37,12 @@ val partsCompleted: Meter = metricsRegistry.meter("partsCompleted")
 
 val metricsDir: Path = Path.of("./metrics")
 val assemblyTimesFile: Path = metricsDir.resolve("partAssemblyTimes.csv")
+val assemblyControllerTimesFile: Path = metricsDir.resolve("assemblyControllerTimes.csv")
+val beltMovementTimesFile: Path = metricsDir.resolve("beltMovementTimes.csv")
 
-val csvLock = Any()
+val assemblyTimesCsvLock = Any()
+val assemblyControllerTimesCsvLock = Any()
+val beltMovementTimesCsvLock = Any()
 
 val logger = LoggerFactory.getLogger("at.ac.uibk.dps.cirrina.execution.object.MetricsCollectorKt")
 
@@ -51,6 +56,24 @@ fun main() {
     Files.writeString(
       assemblyTimesFile,
       "partId,startTimeNs,endTimeNs,assemblyTimeNs\n",
+      StandardOpenOption.CREATE,
+      StandardOpenOption.WRITE,
+    )
+  }
+
+  if (!Files.exists(assemblyControllerTimesFile)) {
+    Files.writeString(
+      assemblyControllerTimesFile,
+      "partId,startTimeNs,endTimeNs,assemblyControllerTimeNs\n",
+      StandardOpenOption.CREATE,
+      StandardOpenOption.WRITE,
+    )
+  }
+
+  if (!Files.exists(beltMovementTimesFile)) {
+    Files.writeString(
+      beltMovementTimesFile,
+      "partId,startTimeNs,endTimeNs,beltMovementTimeNs\n",
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE,
     )
@@ -88,7 +111,7 @@ fun main() {
         if (partAssemblyStartTime != null) {
           val assemblyTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
 
-          synchronized(csvLock) {
+          synchronized(assemblyTimesCsvLock) {
             Files.writeString(
               assemblyTimesFile,
               "$partId,$partAssemblyStartTime,${event.emittedTime},$assemblyTime\n",
@@ -96,8 +119,6 @@ fun main() {
               StandardOpenOption.APPEND,
             )
           }
-        } else {
-          logger.warn("No assembly start time found for part $partId")
         }
       },
     )
@@ -115,6 +136,88 @@ fun main() {
         val partId = event.data.first { it.name == "partId" }.value as Long
 
         partAssemblyStartTimes[partId] = event.emittedTime
+      },
+    )
+    .getOrThrow()
+
+  zenohSession
+    .declareAdvancedSubscriber(
+      KeyExpr.tryFrom("events/assemblyController/ePartProcessingComplete").getOrThrow(),
+      subscriberDetection = true,
+      recoveryConfig = RecoveryConfig(RecoveryMode.Heartbeat),
+      historyConfig = HistoryConfig(detectLatePublishers = true),
+      callback = { sample ->
+        val event = Serializer.deserialize<Event>(sample.payload.toBytes())
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
+        val partAssemblyStartTime = partAssemblyStartTimes.get(partId)
+
+        if (partAssemblyStartTime != null) {
+          val assemblyControllerTime = (event.emittedTime - partAssemblyStartTime).coerceAtLeast(0L)
+
+          synchronized(assemblyControllerTimesCsvLock) {
+            Files.writeString(
+              assemblyControllerTimesFile,
+              "$partId,$partAssemblyStartTime,${event.emittedTime},$assemblyControllerTime\n",
+              StandardOpenOption.CREATE,
+              StandardOpenOption.APPEND,
+            )
+          }
+        } else {
+          logger.warn("No assembly start time found for part $partId")
+        }
+      },
+    )
+    .getOrThrow()
+
+  zenohSession
+    .declareAdvancedSubscriber(
+      KeyExpr.tryFrom("events/conveyorBelt/ePartMovementInitiated").getOrThrow(),
+      subscriberDetection = true,
+      recoveryConfig = RecoveryConfig(RecoveryMode.Heartbeat),
+      historyConfig = HistoryConfig(detectLatePublishers = true),
+      callback = { sample ->
+        val event = Serializer.deserialize<Event>(sample.payload.toBytes())
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
+        beltMovementStartTimes[partId] = event.emittedTime
+
+        } else {
+          logger.warn("No assembly start time found for part $partId")
+        }
+      },
+    )
+    .getOrThrow()
+
+  zenohSession
+    .declareAdvancedSubscriber(
+      KeyExpr.tryFrom("events/conveyorBelt/ePartMovingComplete").getOrThrow(),
+      subscriberDetection = true,
+      recoveryConfig = RecoveryConfig(RecoveryMode.Heartbeat),
+      historyConfig = HistoryConfig(detectLatePublishers = true),
+      callback = { sample ->
+        val event = Serializer.deserialize<Event>(sample.payload.toBytes())
+
+        val partId = event.data.first { it.name == "partId" }.value as Long
+
+        val partMovementStartTime = beltMovementStartTimes.remove(partId)
+
+        if (partMovementStartTime != null) {
+          val movementTime = (event.emittedTime - partMovementStartTime).coerceAtLeast(0L)
+
+          synchronized(beltMovementTimesCsvLock) {
+            Files.writeString(
+              beltMovementTimesFile,
+              "$partId,$partMovementStartTime,${event.emittedTime},$movementTime\n",
+              StandardOpenOption.CREATE,
+              StandardOpenOption.APPEND,
+            )
+          }
+        } else {
+          logger.warn("No assembly start time found for part $partId")
+        }
       },
     )
     .getOrThrow()
