@@ -242,8 +242,9 @@ fun main() {
         val event = Serializer.deserialize<Event>(sample.payload.toBytes())
 
         val partId = event.data.first { it.name == "partId" }.value as Long
+        val emittedTime = (event.data["emittedTime"] as Number).toLong()
 
-        armHandlngStartTimes.putIfAbsent(partId, event.emittedTime)
+        armHandlngStartTimes.merge(partId, emittedTime) { old, new -> minOf(old, new) }
       },
     )
     .getOrThrow()
