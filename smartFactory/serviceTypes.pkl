@@ -10,7 +10,7 @@ stStopBelt = "stopBelt"
 stTakePhoto = "takePhoto"
 
 // Service to scan photo (by conveyor camera)
-stScanPhoto = "scanPhoto"
+stScanPart = "scanPart"
 
 // Service to pickup part (by robotic arm)
 stPickup = "pickUp"

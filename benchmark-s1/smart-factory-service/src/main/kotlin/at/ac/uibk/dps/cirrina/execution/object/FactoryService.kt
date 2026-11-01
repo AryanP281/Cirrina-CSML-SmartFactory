@@ -359,29 +359,17 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
   val invalidObjectImageNames: Array<String> =
     arrayOf("test3.png", "test4.png", "test7.png", "test8.png")
 
-  val photoCaptureTimeMs: Long = 500
-  val photoScanTimeMs: Long = 700
+  val photoScanTimeMs: Long = 1200
   val validObjProb: Double = 1.0
   val beltMovementTimeMs: Long = 400
 
   val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
   // Initializing event topics
-  val photoCapturedTopic = "ePhotoCaptured"
   val photoScannedTopic = "ePhotoScanned"
   val objectDisposalTopic = "eObjectDiscarded"
 
   // Declaring publishers
-  val zenohPhotoCapturePublisher =
-    zenohSession
-      .declareAdvancedPublisher(
-        KeyExpr.tryFrom("events/peripheral/$photoCapturedTopic").getOrThrow(),
-        cacheConfig = CacheConfig(1000L),
-        sampleMissDetection = MissDetectionConfig(HeartbeatMode.PeriodicHeartbeat(500L)),
-        publisherDetection = true,
-      )
-      .getOrThrow()
-
   val zenohPhotoScanPublisher =
     zenohSession
       .declareAdvancedPublisher(
@@ -402,98 +390,34 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
       )
       .getOrThrow()
 
-  httpServer.createContext("/takephoto") { exchange ->
+  httpServer.createContext("/scanpart") { exchange ->
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
-    executorService.schedule(
-      {
-        try {
-          val photoCaptureEvent =
-            Event(
-              photoCapturedTopic,
-              EventChannel.PERIPHERAL,
-              data = mutableListOf(),
-              source = "service",
-              target = "assemblyController",
-              emittedTime = getEmitTime(),
-            )
-
-          val rand = ThreadLocalRandom.current().nextDouble()
-
-          if (rand <= validObjProb)
-            (photoCaptureEvent.data as MutableList<ContextVariable>).add(
-              ContextVariable(
-                "data",
-                Files.readAllBytes(
-                  Paths.get("imgs", "valid", validObjectImageNames[(rand * 100).toInt() % 4])
-                ),
-              )
-            )
-          else
-            (photoCaptureEvent.data as MutableList<ContextVariable>).add(
-              ContextVariable(
-                "data",
-                Files.readAllBytes(
-                  Paths.get("imgs", "invalid", invalidObjectImageNames[(rand * 100).toInt() % 4])
-                ),
-              )
-            )
-
-          emitEvent(photoCaptureEvent, zenohPhotoCapturePublisher)
-        } catch (exe: Exception) {
-          logger.error("Failed to take photo", exe)
-        }
-      },
-      photoCaptureTimeMs,
-      TimeUnit.MILLISECONDS,
-    )
-  }
-
-  httpServer.createContext("/scanphoto") { exchange ->
-    exchange.use {
+    executorService.schedule({
       try {
-        val input =
-          Serializer.deserialize<List<ContextVariable>>(exchange.requestBody.readAllBytes())
 
-        if (input.isEmpty() || input[0].name != "imgData")
-          throw IllegalArgumentException("Invalid input")
+        val rand = ThreadLocalRandom.current().nextDouble()
 
-        val imgData =
-          input[0].value as? ByteArray ?: throw IllegalArgumentException("Invalid input")
+        val imgData = if(rand <= validObjProb) Files.readAllBytes(Paths.get("imgs", "valid", validObjectImageNames[(rand * 100).toInt() % 4])) else Files.readAllBytes(Paths.get("imgs", "invalid", invalidObjectImageNames[(rand * 100).toInt() % 4]))
+        val validObj = detectPart(imgData, intArrayOf(640, 640), ortEnv, ortSession)
 
-        executorService.schedule(
-          {
-            try {
-              val validObj = detectPart(imgData, intArrayOf(640, 640), ortEnv, ortSession)
+        val photoScanEvent =
+          Event(
+            photoScannedTopic,
+            EventChannel.PERIPHERAL,
+            data = listOf(ContextVariable("validObject", validObj)),
+            source = "service",
+            target = "assemblyController",
+            emittedTime = getEmitTime(),
+          )
 
-              val photoScanEvent =
-                Event(
-                  photoScannedTopic,
-                  EventChannel.PERIPHERAL,
-                  data = listOf(ContextVariable("validObject", validObj)),
-                  source = "service",
-                  target = "assemblyController",
-                  emittedTime = getEmitTime(),
-                )
-
-              emitEvent(photoScanEvent, zenohPhotoScanPublisher)
-            } catch (exe: Exception) {
-              logger.error("Failed to scan photo", exe)
-            }
-          },
-          photoScanTimeMs,
-          TimeUnit.MILLISECONDS,
-        )
-
-        exchange.sendResponseHeaders(200, -1)
-      } catch (exe: IllegalArgumentException) {
-        logger.error("Failed to scan photo", exe)
-        exchange.sendResponseHeaders(400, -1)
+        emitEvent(photoScanEvent, zenohPhotoScanPublisher)
       } catch (exe: Exception) {
-        logger.error("Failed to scan photo", exe)
-        exchange.sendResponseHeaders(500, -1)
+        logger.error("Failed to scan part", exe)
       }
-    }
+    },
+    photoScanTimeMs,
+    TimeUnit.MILLISECONDS)
   }
 
   httpServer.createContext("/discardobject") { exchange ->
@@ -525,7 +449,6 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
         shutdownServer(httpServer)
         shutdownExecutorService()
         shutdownZenohPublishers(
-          zenohPhotoCapturePublisher,
           zenohPhotoScanPublisher,
           zenohObjectDisposalPublisher,
         )

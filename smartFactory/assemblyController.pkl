@@ -39,7 +39,7 @@ sm = new csml.StateMachine {
         }
 
         [Events.ePartDetectedAtStart] {
-          to = "capturePhoto"
+          to = "scanPart"
           yields {
             new csml.Emit {event {topic = Events.ePartAssemblyInitiated; data {
               ["partId"] = "nextPartToProcessId"
@@ -54,40 +54,9 @@ sm = new csml.StateMachine {
       }
     }
 
-    ["capturePhoto"] = new csml.State {
+    ["scanPart"] = new csml.State {
       entry {
-        new csml.Invoke {
-          type = ServiceTypes.stTakePhoto
-        }
-      }
-
-      on {
-        [Events.ePhotoCaptured] {
-          to = "scanPhoto"
-        }
-
-        [Events.eJobDone] {
-          to = "jobDone"
-        }
-
-        [Events.eBeamInterruptedStart] {
-          yields {
-            new csml.Eval {
-              expression = "nextReceivedPartId += 1"
-            }
-          }
-        }
-      }
-    }
-
-    ["scanPhoto"] = new csml.State {
-      entry {
-        new csml.Invoke {
-          type = ServiceTypes.stScanPhoto
-          input {
-            ["imgData"] = "$data"
-          }
-        }
+        new csml.Invoke { type = ServiceTypes.stScanPart }
       }
 
       exit {

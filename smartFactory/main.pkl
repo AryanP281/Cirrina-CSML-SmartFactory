@@ -68,21 +68,12 @@ bindings {
     method = "POST"
   }
   new HttpServiceImplementationBinding {
-    name = ServiceTypes.stTakePhoto
+    name = ServiceTypes.stScanPart
     `local` = false
     scheme = "http"
     host = "localhost"
     port = 6000
-    endPoint = "/takephoto"
-    method = "POST"
-  }
-  new HttpServiceImplementationBinding {
-    name = ServiceTypes.stScanPhoto
-    `local` = false
-    scheme = "http"
-    host = "localhost"
-    port = 6000
-    endPoint = "/scanphoto"
+    endPoint = "/scanpart"
     method = "POST"
   }
   new HttpServiceImplementationBinding {
