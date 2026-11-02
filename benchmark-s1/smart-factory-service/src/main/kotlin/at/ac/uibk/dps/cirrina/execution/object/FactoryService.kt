@@ -359,7 +359,7 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
   val invalidObjectImageNames: Array<String> =
     arrayOf("test3.png", "test4.png", "test7.png", "test8.png")
 
-  val photoScanTimeMs: Long = 1200
+  val partScanTimeMs: Long = 1200
   val validObjProb: Double = 1.0
   val beltMovementTimeMs: Long = 400
 
@@ -393,31 +393,41 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
   httpServer.createContext("/scanpart") { exchange ->
     exchange.use { exchange.sendResponseHeaders(200, -1) }
 
-    executorService.schedule({
-      try {
+    executorService.schedule(
+      {
+        try {
 
-        val rand = ThreadLocalRandom.current().nextDouble()
+          val rand = ThreadLocalRandom.current().nextDouble()
 
-        val imgData = if(rand <= validObjProb) Files.readAllBytes(Paths.get("imgs", "valid", validObjectImageNames[(rand * 100).toInt() % 4])) else Files.readAllBytes(Paths.get("imgs", "invalid", invalidObjectImageNames[(rand * 100).toInt() % 4]))
-        val validObj = detectPart(imgData, intArrayOf(640, 640), ortEnv, ortSession)
+          val imgData =
+            if (rand <= validObjProb)
+              Files.readAllBytes(
+                Paths.get("imgs", "valid", validObjectImageNames[(rand * 100).toInt() % 4])
+              )
+            else
+              Files.readAllBytes(
+                Paths.get("imgs", "invalid", invalidObjectImageNames[(rand * 100).toInt() % 4])
+              )
+          val validObj = detectPart(imgData, intArrayOf(640, 640), ortEnv, ortSession)
 
-        val photoScanEvent =
-          Event(
-            photoScannedTopic,
-            EventChannel.PERIPHERAL,
-            data = listOf(ContextVariable("validObject", validObj)),
-            source = "service",
-            target = "assemblyController",
-            emittedTime = getEmitTime(),
-          )
+          val photoScanEvent =
+            Event(
+              photoScannedTopic,
+              EventChannel.PERIPHERAL,
+              data = listOf(ContextVariable("validObject", validObj)),
+              source = "service",
+              target = "assemblyController",
+              emittedTime = getEmitTime(),
+            )
 
-        emitEvent(photoScanEvent, zenohPhotoScanPublisher)
-      } catch (exe: Exception) {
-        logger.error("Failed to scan part", exe)
-      }
-    },
-    photoScanTimeMs,
-    TimeUnit.MILLISECONDS)
+          emitEvent(photoScanEvent, zenohPhotoScanPublisher)
+        } catch (exe: Exception) {
+          logger.error("Failed to scan part", exe)
+        }
+      },
+      partScanTimeMs,
+      TimeUnit.MILLISECONDS,
+    )
   }
 
   httpServer.createContext("/discardobject") { exchange ->
@@ -448,10 +458,7 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
       Thread {
         shutdownServer(httpServer)
         shutdownExecutorService()
-        shutdownZenohPublishers(
-          zenohPhotoScanPublisher,
-          zenohObjectDisposalPublisher,
-        )
+        shutdownZenohPublishers(zenohPhotoScanPublisher, zenohObjectDisposalPublisher)
         shutdownZenohSession(zenohSession)
         shutdownOrt(ortSession, ortEnv)
       }
