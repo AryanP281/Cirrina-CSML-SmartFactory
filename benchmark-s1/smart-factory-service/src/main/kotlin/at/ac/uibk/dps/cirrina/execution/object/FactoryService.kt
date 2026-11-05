@@ -140,7 +140,7 @@ fun registerMessageProcessorEndpoints(httpServer: HttpServer) {
 
 fun registerBeltEndpoints(httpServer: HttpServer) {
   // Initializing configuration parameters
-  val beltMovementTimeMs: Long = 400
+  val beltMovementTimeMs: Long = 0 // 400
 
   val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
@@ -203,9 +203,9 @@ fun registerArmEndpoints(httpServer: HttpServer) {
   val pickupMaxFailureProb: Double = 0.0
   val assemblyMinFailureProb: Double = 0.0
   val assemblyMaxFailureProb: Double = 0.0
-  val pickupTimeMs: Long = 100L
-  val assemblyTimeMs: Long = 1000L
-  val armResetTimeMs: Long = 500
+  val pickupTimeMs: Long = 0 // 100L
+  val assemblyTimeMs: Long = 0 // 1000L
+  val armResetTimeMs: Long = 0 // 500
 
   val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
@@ -359,9 +359,9 @@ fun registerAssemblyControllerEndpoints(httpServer: HttpServer) {
   val invalidObjectImageNames: Array<String> =
     arrayOf("test3.png", "test4.png", "test7.png", "test8.png")
 
-  val partScanTimeMs: Long = 1200
+  val partScanTimeMs: Long = 0 // 1200
   val validObjProb: Double = 1.0
-  val beltMovementTimeMs: Long = 400
+  val beltMovementTimeMs: Long = 0 // 400
 
   val zenohSession = Zenoh.open(zenohConfig).getOrThrow()
 
